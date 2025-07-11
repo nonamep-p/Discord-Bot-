@@ -31,7 +31,12 @@ A human-like Discord chatbot with custom personality prompts, security features,
 - Human-like typing indicators
 - Natural response delays
 
-## �� Quick Start
+### 🎨 Image & GIF Generation
+- `!image <prompt>` - Persona-aware fallback (no API key required, upgradeable for real images)
+- `!gif <search>` - Persona-aware fallback (no API key required, upgradeable for real GIFs)
+- *Add your API keys to enable real image and GIF generation. Without keys, the bot responds in-character with a description.*
+
+##  Quick Start
 
 ### 1. Environment Setup
 ```bash
@@ -57,6 +62,8 @@ python3 bot.py
 - `!prompt set <prompt>` - Set custom personality prompt
 - `!prompt clear` - Clear custom prompt
 - `!prompt show` - Show current prompt
+- `!image <prompt>` - Persona-aware fallback (upgradeable for real images)
+- `!gif <search>` - Persona-aware fallback (upgradeable for real GIFs)
 
 ### Example Custom Prompts
 ```
@@ -64,6 +71,12 @@ python3 bot.py
 !prompt set You are a casual Discord user who loves memes and fun conversations
 !prompt set You are a helpful community member who answers questions thoughtfully
 ```
+
+## ⚠️ Coming Soon / Visual-Only Features
+- Advanced analytics/statistics (UI only, not backed by real data)
+- Discord policy compliance status (UI only)
+- Some advanced security toggles (UI/buttons exist, backend logic missing)
+- Some server-specific config (UI exists, not all settings are per-server)
 
 ## 🛡️ Wick Protection
 
