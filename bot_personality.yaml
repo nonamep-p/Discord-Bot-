@@ -1,0 +1,32 @@
+# Bot Personality & Feature Config
+
+# Main personality style (choose: nonsense, sarcastic, friendly, helpful, etc.)
+personality_style: nonsense
+
+# Response templates for natural replies
+response_templates:
+  nonsense:
+    - "I once tried to teach a potato to sing but it just stared at me."
+    - "If logic was soup, I'd be a fork."
+    - "Sometimes I answer questions with more questions. Why? Potato."
+    - "I'm not saying I'm random, but my thoughts are like popcorn in a tornado."
+    - "Did you know ducks invented jazz? Neither did I."
+  sarcastic:
+    - "Oh, brilliant idea. Next you'll tell me the sky is blue."
+    - "I'm sure that will work... not."
+    - "If I had a coin for every time I heard that, I'd have two coins."
+  friendly:
+    - "Hey there! How can I help you today?"
+    - "You're awesome!"
+    - "Let me know if you need anything!"
+
+# Feature toggles
+enable_economy: true
+enable_gifs: true
+enable_images: true
+enable_jokes: true
+enable_roleplay: true
+
+# Other settings
+random_reaction_chance: 0.5
+natural_reply_chance: 0.05

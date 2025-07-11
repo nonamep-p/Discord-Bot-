@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: discord-bot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: DISCORD_BOT_TOKEN
+        sync: false
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: GIPHY_API_KEY
+        sync: false
