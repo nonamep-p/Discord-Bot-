@@ -1,6 +1,6 @@
-# 🤖 Kaala Billota - Advanced Disc  ord Bot
+# 🤖 Kaala Billota - Advanced Discord Bot
 
-A human-like Discord chatbot with custom personality prompts, security features, and Wick protection.
+A human-like Discord chatbot with custom personality prompts, security features, Wick protection, and real GIF search.
 
 ## ✨ Features
 
@@ -32,17 +32,18 @@ A human-like Discord chatbot with custom personality prompts, security features,
 - Natural response delays
 
 ### 🎨 Image & GIF Generation
-- `!image <prompt>` - Persona-aware fallback (no API key required, upgradeable for real images)
-- `!gif <search>` - Persona-aware fallback (no API key required, upgradeable for real GIFs)
-- *Add your API keys to enable real image and GIF generation. Without keys, the bot responds in-character with a description.*
+- `!image <prompt>` - Persona-aware fallback (no real image generation; bot responds in-character with a description)
+- `!gif <search>` - **Real GIF search powered by GIPHY API** (requires GIPHY API key in `.env`)
+- *Add your API keys to enable real GIF generation. Image generation is fallback only.*
 
 ##  Quick Start
 
 ### 1. Environment Setup
 ```bash
-# Required environment variables
+# Required environment variables (store in a .env file, never commit secrets)
 DISCORD_BOT_TOKEN=your_discord_bot_token
 GROQ_API_KEY=your_groq_api_key
+GIPHY_API_KEY=your_giphy_api_key
 ```
 
 ### 2. Install Dependencies
@@ -62,8 +63,8 @@ python3 bot.py
 - `!prompt set <prompt>` - Set custom personality prompt
 - `!prompt clear` - Clear custom prompt
 - `!prompt show` - Show current prompt
-- `!image <prompt>` - Persona-aware fallback (upgradeable for real images)
-- `!gif <search>` - Persona-aware fallback (upgradeable for real GIFs)
+- `!image <prompt>` - Persona-aware fallback (no real images)
+- `!gif <search>` - Real GIF search (requires GIPHY API key)
 
 ### Example Custom Prompts
 ```
@@ -130,12 +131,14 @@ Discord-Bot-/
 
 ## 🔒 Security
 
-- No hardcoded tokens
+- No hardcoded tokens or API keys in code or config files
+- **Secrets must be stored in `.env` and never committed**
 - Environment variable protection
 - Message sanitization
 - Rate limiting
 - Anti-spam measures
 - Suspicious activity monitoring
+- **GitHub push protection and secret scanning are enabled**
 
 ## 🚨 Troubleshooting
 
