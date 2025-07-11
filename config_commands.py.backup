@@ -64,35 +64,6 @@ class ConfigView(discord.ui.View):
         view = PersonalityView(self.bot)
         await interaction.response.edit_message(embed=embed, view=view)
         
-    @discord.ui.button(label="Custom Prompt", style=discord.ButtonStyle.secondary, emoji="✏️")
-    async def custom_prompt_settings(self, interaction: discord.Interaction, button: discord.ui.Button):
-        embed = discord.Embed(
-            title="✏️ Custom Prompt Configuration",
-            description="Set your own personality prompt for the bot",
-            color=discord.Color.purple()
-        )
-        
-        # Get current custom prompt
-        current_prompt = self.bot.personality.get_custom_prompt(
-            str(interaction.user.id),
-            str(interaction.guild.id) if interaction.guild else None
-        )
-        
-        embed.add_field(
-            name="Current Custom Prompt",
-            value=current_prompt[:200] + "..." if current_prompt and len(current_prompt) > 200 else (current_prompt or "None set (using default personality)"),
-            inline=False
-        )
-        
-        embed.add_field(
-            name="How to Use",
-            value="Use `!prompt set <your prompt>` to set a custom personality\nUse `!prompt clear` to remove it",
-            inline=False
-        )
-        
-        view = CustomPromptView(self.bot)
-        await interaction.response.edit_message(embed=embed, view=view)
-        
     @discord.ui.button(label="Features", style=discord.ButtonStyle.secondary, emoji="⚙️")
     async def feature_settings(self, interaction: discord.Interaction, button: discord.ui.Button):
         embed = discord.Embed(
@@ -108,8 +79,6 @@ class ConfigView(discord.ui.View):
             **Reactions:** {'✅ Enabled' if self.bot.settings['reactions_enabled'] else '❌ Disabled'}
             **Memory:** ✅ Enabled
             **Personality Shifts:** ✅ Enabled
-            **Custom Prompts:** {'✅ Enabled' if self.bot.settings['custom_prompt_enabled'] else '❌ Disabled'}
-            **Security:** ✅ Enabled
             """,
             inline=False
         )
@@ -220,61 +189,7 @@ class PersonalityView(discord.ui.View):
         self.bot.settings['personality_mode'] = 'thoughtful'
         embed = discord.Embed(
             title="✅ Personality Updated",
-            description="I'm now in **Thoughtful** mode - deep and reflective! 🤔",
-            color=discord.Color.green()
-        )
-        await interaction.response.edit_message(embed=embed, view=self)
-        
-    @discord.ui.button(label="Back", style=discord.ButtonStyle.grey)
-    async def back(self, interaction: discord.Interaction, button: discord.ui.Button):
-        embed = discord.Embed(
-            title="🤖 Bot Configuration",
-            description="Choose what you'd like to configure:",
-            color=discord.Color.blue()
-        )
-        view = ConfigView(self.bot)
-        await interaction.response.edit_message(embed=embed, view=view)
-
-class CustomPromptView(discord.ui.View):
-    def __init__(self, bot):
-        super().__init__(timeout=300)
-        self.bot = bot
-        
-    @discord.ui.button(label="Set Custom Prompt", style=discord.ButtonStyle.primary, emoji="✏️")
-    async def set_prompt(self, interaction: discord.Interaction, button: discord.ui.Button):
-        embed = discord.Embed(
-            title="✏️ Set Custom Prompt",
-            description="Use `!prompt set <your custom prompt>` to set a custom personality prompt for the bot.",
-            color=discord.Color.blue()
-        )
-        
-        embed.add_field(
-            name="Example",
-            value="`!prompt set You are a helpful gaming buddy who loves Minecraft and always gives gaming tips`",
-            inline=False
-        )
-        
-        embed.add_field(
-            name="Current Custom Prompt",
-            value=self.bot.personality.get_custom_prompt(
-                str(interaction.user.id), 
-                str(interaction.guild.id) if interaction.guild else None
-            ) or "None set (using default personality)",
-            inline=False
-        )
-        
-        await interaction.response.edit_message(embed=embed, view=self)
-        
-    @discord.ui.button(label="Clear Prompt", style=discord.ButtonStyle.danger, emoji="🗑️")
-    async def clear_prompt(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.bot.personality.clear_custom_prompt(
-            str(interaction.user.id),
-            str(interaction.guild.id) if interaction.guild else None
-        )
-        
-        embed = discord.Embed(
-            title="✅ Custom Prompt Cleared",
-            description="Your custom prompt has been cleared. The bot will now use the default personality modes.",
+            description="I'm now in **Thoughtful** mode - deep and reflective! ��",
             color=discord.Color.green()
         )
         await interaction.response.edit_message(embed=embed, view=self)
@@ -302,18 +217,6 @@ class FeatureView(discord.ui.View):
         embed = discord.Embed(
             title="✅ Reactions Updated",
             description=f"Reactions {status}",
-            color=discord.Color.green()
-        )
-        await interaction.response.edit_message(embed=embed, view=self)
-        
-    @discord.ui.button(label="Toggle Custom Prompts", style=discord.ButtonStyle.secondary)
-    async def toggle_custom_prompts(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.bot.settings['custom_prompt_enabled'] = not self.bot.settings['custom_prompt_enabled']
-        status = "Enabled" if self.bot.settings['custom_prompt_enabled'] else "Disabled"
-        
-        embed = discord.Embed(
-            title="✅ Custom Prompts Updated",
-            description=f"Custom prompts {status}",
             color=discord.Color.green()
         )
         await interaction.response.edit_message(embed=embed, view=self)
@@ -348,7 +251,6 @@ class ConfigCommands(commands.Cog):
             **Chat Frequency:** {self.bot.settings['chat_frequency'] * 100:.0f}%
             **Random Chat:** {'✅' if self.bot.settings['random_chat_enabled'] else '❌'}
             **Reactions:** {'✅' if self.bot.settings['reactions_enabled'] else '❌'}
-            **Custom Prompts:** {'✅' if self.bot.settings['custom_prompt_enabled'] else '❌'}
             """,
             inline=False
         )
