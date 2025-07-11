@@ -1,169 +1,177 @@
-# Discord AI Bot
+# Kaala Billota - Advanced Discord Bot
 
-A feature-rich Discord bot with AI chat, image generation, GIF search, and multiple personas.
+A human-like conversational AI Discord bot with personality shifts, interactive configuration, and natural conversation capabilities.
 
-## Features
+## 🌟 Features
 
 ### 🤖 AI Features
-- **Chat with AI**: Use `!chat <message>` to talk with AI using different personas
-- **Image Generation**: Use `!image <prompt>` to generate images with DALL-E
-- **Multiple Personas**: Switch between different AI personalities:
-  - Default: Helpful assistant
-  - Pirate: Swashbuckling pirate
-  - Wizard: Mystical wizard
-  - Robot: Futuristic AI
-  - Chef: Passionate chef
-  - Detective: Sharp detective
+- **Human-like conversation** - Responds naturally to messages, not just commands
+- **Personality modes** - Switch between friendly, witty, casual, enthusiastic, and thoughtful
+- **Groq Llama-3 integration** - Powered by Groq's fast LLM
+- **Memory system** - Remembers conversation history
+- **Natural mention handling** - Replaces Discord mentions with display names
 
-### 🎬 Media Features
-- **GIF Search**: Use `!gif <search>` to find GIFs
-- **Random Memes**: Use `!meme` to get random memes from Reddit
+### ⚙️ Configuration
+- **Interactive `/config` command** - Modern embed-based configuration
+- **Real-time settings** - Adjust chat frequency, personality, and features
+- **Button-based UI** - Easy-to-use configuration panels
+- **Admin controls** - Configure bot behavior from Discord
 
-### 🔧 Utility Features
-- **Server Info**: Use `!serverinfo` to get server statistics
-- **User Info**: Use `!userinfo [user]` to get user information
-- **Bot Status**: Use `!ping` and `!uptime` to check bot status
+### �� Chat Features
+- **Random participation** - Joins conversations naturally (configurable frequency)
+- **Mention responses** - Always responds when mentioned
+- **DM support** - Full conversation in DMs
+- **Reaction system** - Adds natural reactions to responses
+- **Rate limiting** - Prevents spam and abuse
 
-## Setup Instructions
+## 🚀 Quick Start
 
-### 1. Prerequisites
-- Python 3.8 or higher
-- Discord Bot Token
-- OpenAI API Key
-- Giphy API Key (optional, for GIF features)
+### 1. Environment Setup
+```bash
+# Clone the repository
+git clone https://github.com/nonamep-p/Discord-Bot-.git
+cd Discord-Bot-
 
-### 2. Installation
+# Install dependencies
+pip install -r requirements.txt
+```
 
-1. **Clone or download this project**
-2. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Configure environment variables**:
-   Edit the `.env` file and add your API keys:
-   ```
-   DISCORD_BOT_TOKEN=your_discord_bot_token_here
-   OPENAI_API_KEY=your_openai_api_key_here
-   GIPHY_API_KEY=your_giphy_api_key_here
-   ```
+### 2. Environment Variables
+Create a `.env` file:
+```env
+DISCORD_BOT_TOKEN=your_discord_bot_token_here
+GROQ_API_KEY=your_groq_api_key_here
+```
 
 ### 3. Discord Bot Setup
-
 1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
 2. Create a new application
-3. Go to the "Bot" tab and click "Add Bot"
-4. Copy the bot token and add it to your `.env` file
-5. Enable "Message Content Intent" in the Bot settings
-6. Go to "OAuth2" > "URL Generator"
-7. Select "bot" scope and the following permissions:
+3. Go to "Bot" tab and create a bot
+4. Copy the bot token to your `.env` file
+5. Enable "Message Content Intent" in Bot settings
+6. Use OAuth2 URL Generator to invite bot with permissions:
    - Send Messages
    - Read Message History
    - Embed Links
-   - Attach Files
-8. Use the generated URL to invite the bot to your server
+   - Use Slash Commands
 
-### 4. API Keys Setup
-
-#### OpenAI API Key
-1. Go to [OpenAI Platform](https://platform.openai.com/)
+### 4. Groq API Setup
+1. Go to [Groq Console](https://console.groq.com/)
 2. Create an account and get your API key
-3. Add it to your `.env` file
+3. Add the key to your `.env` file
 
-#### Giphy API Key (Optional)
-1. Go to [Giphy for Developers](https://developers.giphy.com/)
-2. Create an account and get your API key
-3. Add it to your `.env` file
-
-### 5. Running the Bot
-
+### 5. Run the Bot
 ```bash
 python main.py
 ```
 
-## Commands
+## 📋 Commands
+
+### Configuration
+- `/config` - Interactive configuration panel
+
+### Chat Commands
+- `!help` - Show all commands
+- `!ping` - Check bot status
+- `!balance` - Check coin balance
+- `!daily` - Claim daily reward
 
 ### AI Commands
-- `!chat <message>` - Chat with AI using current persona
-- `!image <prompt>` - Generate image using DALL-E
-- `!persona [name]` - Switch AI persona or list available personas
+- `!chat [message]` - Direct AI chat
+- `!roleplay [character]` - Switch personality mode
 
-### Media Commands
-- `!gif <search>` - Search for GIFs
-- `!meme` - Get a random meme
+## ⚙️ Configuration
 
-### Utility Commands
-- `!ping` - Check bot latency
-- `!serverinfo` - Get server information
-- `!userinfo [user]` - Get user information
-- `!uptime` - Show bot uptime
-- `!help` - Show all commands
+Use `/config` to access the interactive configuration panel:
 
-## Hosting
+### Chat Settings
+- **Chat Frequency** - How often the bot joins random conversations
+- **Random Chat** - Enable/disable random participation
+- **Mention Only** - Only respond when mentioned
 
-### Option 1: Heroku (Platform)
-1. Create a `Procfile` with: `worker: python main.py`
-2. Push your code to Heroku
-3. Set environment variables in Heroku dashboard
+### Personality Settings
+- **Friendly** - Warm and approachable
+- **Witty** - Clever and humorous
+- **Casual** - Relaxed and informal
+- **Enthusiastic** - Energetic and excited
+- **Thoughtful** - Deep and reflective
 
-### Option 2: Oracle Cloud (Recommended VPS)
-1. Create an Oracle Cloud Free Tier account
-2. Create a Compute Instance with Ubuntu
-3. SSH into your server
-4. Clone your project and install dependencies
-5. Create a systemd service for 24/7 uptime
+### Feature Settings
+- **Reactions** - Enable/disable reaction emojis
+- **Memory** - Conversation history (always enabled)
+- **Personality Shifts** - Dynamic personality changes
 
-#### Systemd Service Setup
-Create `/etc/systemd/system/discord-bot.service`:
-```ini
-[Unit]
-Description=Discord Bot
-After=network.target
+## 🏗️ Architecture
 
-[Service]
-User=ubuntu
-WorkingDirectory=/home/ubuntu/discord-ai-bot
-ExecStart=/home/ubuntu/discord-ai-bot/venv/bin/python3 /home/ubuntu/discord-ai-bot/main.py
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
+```
+├── main.py              # Entry point
+├── bot.py               # Main bot class
+├── api_client.py        # Groq API integration
+├── personality.py       # Personality management
+├── commands.py          # Command handlers
+├── config_commands.py   # Interactive config
+├── config.py           # Configuration management
+├── database.py         # Data persistence
+└── rate_limiter.py     # Rate limiting
 ```
 
-Enable and start the service:
+## 🚀 Deployment
+
+### Render (Recommended)
+1. Fork this repository
+2. Connect to Render
+3. Set environment variables
+4. Deploy automatically
+
+### Railway
+1. Connect your GitHub repo
+2. Set environment variables
+3. Deploy with Railway
+
+### Local/Server
 ```bash
-sudo systemctl daemon-reload
-sudo systemctl enable discord-bot.service
-sudo systemctl start discord-bot.service
+# Install dependencies
+pip install -r requirements.txt
+
+# Set environment variables
+export DISCORD_BOT_TOKEN=your_token
+export GROQ_API_KEY=your_key
+
+# Run the bot
+python main.py
 ```
 
-Check logs:
-```bash
-sudo journalctl -u discord-bot -f
-```
+## 🔧 Environment Variables
 
-## Project Structure
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `DISCORD_BOT_TOKEN` | Discord bot token | ✅ |
+| `GROQ_API_KEY` | Groq API key | ✅ |
 
-```
-discord-ai-bot/
-├── main.py                 # Main bot file
-├── requirements.txt        # Python dependencies
-├── .env                   # Environment variables
-├── README.md             # This file
-└── cogs/                 # Bot command modules
-    ├── ai_commands.py    # AI and image generation commands
-    ├── media_commands.py # GIF and meme commands
-    └── utility_commands.py # Utility and info commands
-```
-
-## Troubleshooting
-
-1. **Bot not responding**: Check if the bot token is correct and the bot is online
-2. **AI commands not working**: Verify your OpenAI API key is valid and has credits
-3. **GIF commands not working**: Check your Giphy API key or remove it to disable the feature
-4. **Permission errors**: Make sure the bot has the required permissions in your Discord server
-
-## License
+## 📝 License
 
 This project is open source and available under the MIT License.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## 🐛 Troubleshooting
+
+### Bot not responding
+- Check if bot token is correct
+- Verify bot has proper permissions
+- Check if bot is online
+
+### AI not working
+- Verify Groq API key is valid
+- Check API rate limits
+- Ensure internet connectivity
+
+### Configuration not working
+- Make sure bot has slash command permissions
+- Check if `/config` command is loaded
+- Verify bot has embed permissions
