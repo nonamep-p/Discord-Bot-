@@ -13,6 +13,7 @@ from api_client import APIClient
 from commands import BotCommands
 from personality import PersonalityManager
 from rate_limiter import RateLimiter
+from datetime import datetime
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -29,33 +30,22 @@ class AdvancedDiscordBot(commands.Bot):
         
         super().__init__(command_prefix='!', intents=intents, help_command=None)
         
+        # Track startup time
+        self.start_time = datetime.now()
+        
         # Initialize components
         self.config = Config()
         self.db = Database()
         self.api_client = APIClient()
         self.personality = PersonalityManager()
-        self.rate_limiter = RateLimiter()
-        
-        # Security settings
-        self.security = {
-            'max_message_length': 2000,
-            'max_conversation_history': 10,
-            'rate_limit_window': 60,
-            'max_requests_per_minute': 30,
-            'blocked_words': ['token', 'password', 'api_key', 'secret'],
-            'trusted_users': set(),  # Add user IDs here for trusted users
-            'anti_spam_enabled': True
-        }
+        self.rate_limiter = RateLimiter(self.db)
         
         # Bot settings - configurable via !config
-        self.settings = {
-            'chat_frequency': 0.1,  # 10% chance to join random chat
-            'personality_mode': 'friendly',
-            'reactions_enabled': True,
-            'random_chat_enabled': True,
-            'mention_only': False,
-            'custom_prompt_enabled': True
-        }
+        self.settings = self.config.get_bot_settings()
+        
+        # Security settings
+        self.security = self.config.get_security_settings()
+        self.security['trusted_users'] = set()  # Add user IDs here for trusted users
         
         # Bot names that will trigger responses
         self.bot_names = [
@@ -179,12 +169,20 @@ class AdvancedDiscordBot(commands.Bot):
             # Clean message content - replace mentions with names
             clean_content = self.replace_mentions_with_names(message.content, message.guild)
             
+            # --- Personality mode selection logic ---
+            user_personality_mode = self.db.get_personality_mode(user_id)
+            if user_personality_mode and user_personality_mode != 'friendly':
+                personality_mode = user_personality_mode
+            else:
+                personality_mode = self.settings['personality_mode']
+            # --------------------------------------
+            
             # Generate natural response using personality with custom prompt support
             async with message.channel.typing():
                 response = self.personality.generate_response(
                     clean_content, 
                     message.author.display_name,
-                    self.settings['personality_mode'],
+                    personality_mode,
                     self.db.get_conversation_history(user_id),
                     self.api_client,
                     user_id,
@@ -206,6 +204,26 @@ class AdvancedDiscordBot(commands.Bot):
         except Exception as e:
             logger.error(f"Error in natural conversation: {e}")
             await message.add_reaction('❌')
+
+    def update_settings(self, new_settings: dict):
+        """Update bot settings and sync with configuration"""
+        self.settings.update(new_settings)
+        self.config.update_bot_settings(new_settings)
+        logger.info(f"Settings updated: {list(new_settings.keys())}")
+    
+    def update_security_settings(self, new_settings: dict):
+        """Update security settings and sync with configuration"""
+        self.security.update(new_settings)
+        self.config.update_security_settings(new_settings)
+        logger.info(f"Security settings updated: {list(new_settings.keys())}")
+    
+    def reload_config(self):
+        """Reload configuration from file"""
+        self.config.load_config()
+        self.settings = self.config.get_bot_settings()
+        self.security = self.config.get_security_settings()
+        self.security['trusted_users'] = set()  # Preserve trusted users
+        logger.info("Configuration reloaded")
 
 async def setup_bot():
     """Set up and run the bot"""

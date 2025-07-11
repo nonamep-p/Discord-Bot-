@@ -1,7 +1,7 @@
 import sqlite3
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
@@ -51,6 +51,19 @@ class Database:
                     hourly_calls INTEGER DEFAULT 0,
                     images_today INTEGER DEFAULT 0,
                     PRIMARY KEY (user_id, date)
+                )
+            ''')
+            
+            # Economy transactions table for better tracking
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS transactions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT,
+                    transaction_type TEXT,
+                    amount INTEGER,
+                    balance_after INTEGER,
+                    timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users (user_id)
                 )
             ''')
             
@@ -151,16 +164,36 @@ class Database:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
+            # First check if user has enough coins
             cursor.execute('''
-                UPDATE users SET coins = coins - ?
-                WHERE user_id = ? AND coins >= ?
-            ''', (amount, user_id, amount))
+                SELECT coins FROM users WHERE user_id = ?
+            ''', (user_id,))
             
-            success = cursor.rowcount > 0
+            result = cursor.fetchone()
+            if not result or result[0] < amount:
+                conn.close()
+                return False
+            
+            current_balance = result[0]
+            new_balance = current_balance - amount
+            
+            # Update coins
+            cursor.execute('''
+                UPDATE users SET coins = ?
+                WHERE user_id = ?
+            ''', (new_balance, user_id))
+            
+            # Log transaction
+            cursor.execute('''
+                INSERT INTO transactions (user_id, transaction_type, amount, balance_after)
+                VALUES (?, 'spend', ?, ?)
+            ''', (user_id, -amount, new_balance))
+            
             conn.commit()
             conn.close()
             
-            return success
+            logger.info(f"User {user_id} spent {amount} coins. New balance: {new_balance}")
+            return True
             
         except Exception as e:
             logger.error(f"Error spending coins: {e}")
@@ -172,13 +205,31 @@ class Database:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
+            # Get current balance
             cursor.execute('''
-                UPDATE users SET coins = coins + ?
+                SELECT coins FROM users WHERE user_id = ?
+            ''', (user_id,))
+            
+            result = cursor.fetchone()
+            current_balance = result[0] if result else 0
+            new_balance = current_balance + amount
+            
+            # Update coins
+            cursor.execute('''
+                UPDATE users SET coins = ?
                 WHERE user_id = ?
-            ''', (amount, user_id))
+            ''', (new_balance, user_id))
+            
+            # Log transaction
+            cursor.execute('''
+                INSERT INTO transactions (user_id, transaction_type, amount, balance_after)
+                VALUES (?, 'add', ?, ?)
+            ''', (user_id, amount, new_balance))
             
             conn.commit()
             conn.close()
+            
+            logger.info(f"User {user_id} received {amount} coins. New balance: {new_balance}")
             
         except Exception as e:
             logger.error(f"Error adding coins: {e}")
@@ -199,18 +250,48 @@ class Database:
                 conn.close()
                 return False
             
+            # Check if receiver exists, create if not
+            cursor.execute('''
+                SELECT coins FROM users WHERE user_id = ?
+            ''', (receiver_id,))
+            
+            receiver_result = cursor.fetchone()
+            if not receiver_result:
+                # Create receiver user
+                cursor.execute('''
+                    INSERT INTO users (user_id, coins, personality_mode)
+                    VALUES (?, 0, 'friendly')
+                ''', (receiver_id,))
+                receiver_balance = 0
+            else:
+                receiver_balance = receiver_result[0]
+            
+            sender_balance = sender_result[0]
+            
             # Transfer coins
             cursor.execute('''
-                UPDATE users SET coins = coins - ? WHERE user_id = ?
-            ''', (amount, sender_id))
+                UPDATE users SET coins = ? WHERE user_id = ?
+            ''', (sender_balance - amount, sender_id))
             
             cursor.execute('''
-                UPDATE users SET coins = coins + ? WHERE user_id = ?
-            ''', (amount, receiver_id))
+                UPDATE users SET coins = ? WHERE user_id = ?
+            ''', (receiver_balance + amount, receiver_id))
+            
+            # Log transactions
+            cursor.execute('''
+                INSERT INTO transactions (user_id, transaction_type, amount, balance_after)
+                VALUES (?, 'transfer_sent', ?, ?)
+            ''', (sender_id, -amount, sender_balance - amount))
+            
+            cursor.execute('''
+                INSERT INTO transactions (user_id, transaction_type, amount, balance_after)
+                VALUES (?, 'transfer_received', ?, ?)
+            ''', (receiver_id, amount, receiver_balance + amount))
             
             conn.commit()
             conn.close()
             
+            logger.info(f"Transfer: {sender_id} -> {receiver_id}: {amount} coins")
             return True
             
         except Exception as e:
@@ -233,8 +314,13 @@ class Database:
             if not result or not result[0]:
                 return True
             
+            # Parse the last daily time and check if 24 hours have passed
             last_daily = datetime.fromisoformat(result[0])
-            return datetime.now() - last_daily > timedelta(days=1)
+            now = datetime.now(timezone.utc)
+            
+            # Check if it's been more than 24 hours since last claim
+            time_diff = now - last_daily.replace(tzinfo=timezone.utc)
+            return time_diff.total_seconds() >= 86400  # 24 hours in seconds
             
         except Exception as e:
             logger.error(f"Error checking daily claim: {e}")
@@ -246,25 +332,68 @@ class Database:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
-            cursor.execute('''
-                UPDATE users 
-                SET coins = coins + 100, last_daily = ?
-                WHERE user_id = ?
-            ''', (datetime.now().isoformat(), user_id))
-            
+            # Get current balance
             cursor.execute('''
                 SELECT coins FROM users WHERE user_id = ?
             ''', (user_id,))
             
-            new_balance = cursor.fetchone()[0]
+            result = cursor.fetchone()
+            current_balance = result[0] if result else 0
+            new_balance = current_balance + 100
+            
+            # Update coins and last daily time
+            cursor.execute('''
+                UPDATE users 
+                SET coins = ?, last_daily = ?
+                WHERE user_id = ?
+            ''', (new_balance, datetime.now(timezone.utc).isoformat(), user_id))
+            
+            # Log transaction
+            cursor.execute('''
+                INSERT INTO transactions (user_id, transaction_type, amount, balance_after)
+                VALUES (?, 'daily_reward', ?, ?)
+            ''', (user_id, 100, new_balance))
+            
             conn.commit()
             conn.close()
             
+            logger.info(f"User {user_id} claimed daily reward. New balance: {new_balance}")
             return new_balance
             
         except Exception as e:
             logger.error(f"Error claiming daily: {e}")
             return 1000
+    
+    def get_transaction_history(self, user_id: str, limit: int = 10) -> List[Dict]:
+        """Get user's recent transaction history"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT transaction_type, amount, balance_after, timestamp 
+                FROM transactions 
+                WHERE user_id = ?
+                ORDER BY timestamp DESC
+                LIMIT ?
+            ''', (user_id, limit))
+            
+            results = cursor.fetchall()
+            conn.close()
+            
+            return [
+                {
+                    'type': row[0],
+                    'amount': row[1],
+                    'balance_after': row[2],
+                    'timestamp': row[3]
+                }
+                for row in results
+            ]
+            
+        except Exception as e:
+            logger.error(f"Error getting transaction history: {e}")
+            return []
     
     def set_personality_mode(self, user_id: str, mode: str):
         """Set user's personality mode"""
@@ -339,3 +468,81 @@ class Database:
             
         except Exception as e:
             logger.error(f"Error updating usage: {e}")
+    
+    def reset_user_data(self, user_id: str):
+        """Reset user data to defaults"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            # Reset user data to defaults
+            cursor.execute('''
+                UPDATE users 
+                SET coins = 1000, personality_mode = 'friendly', total_commands = 0, last_daily = NULL
+                WHERE user_id = ?
+            ''', (user_id,))
+            
+            # Clear conversation history
+            cursor.execute('''
+                DELETE FROM conversations WHERE user_id = ?
+            ''', (user_id,))
+            
+            # Clear usage data
+            cursor.execute('''
+                DELETE FROM usage WHERE user_id = ?
+            ''', (user_id,))
+            
+            conn.commit()
+            conn.close()
+            
+            logger.info(f"User data reset for {user_id}")
+            
+        except Exception as e:
+            logger.error(f"Error resetting user data: {e}")
+    
+    def get_top_users(self, limit: int = 10) -> List[Dict]:
+        """Get top users by coin balance"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT user_id, coins, total_commands 
+                FROM users 
+                ORDER BY coins DESC 
+                LIMIT ?
+            ''', (limit,))
+            
+            results = cursor.fetchall()
+            conn.close()
+            
+            return [
+                {
+                    'user_id': row[0],
+                    'coins': row[1],
+                    'total_commands': row[2]
+                }
+                for row in results
+            ]
+            
+        except Exception as e:
+            logger.error(f"Error getting top users: {e}")
+            return []
+
+    def get_personality_mode(self, user_id: str) -> str:
+        """Get user's personality mode, defaulting to 'friendly' if not set"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT personality_mode FROM users WHERE user_id = ?
+            ''', (user_id,))
+            result = cursor.fetchone()
+            conn.close()
+            if result and result[0]:
+                return result[0]
+            else:
+                return 'friendly'
+        except Exception as e:
+            logger.error(f"Error getting personality mode: {e}")
+            return 'friendly'

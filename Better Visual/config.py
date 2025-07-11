@@ -1,55 +1,51 @@
 import os
+import json
 import logging
 from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
 class Config:
-    """Configuration management for the bot"""
-    
+    """Persistent configuration management for the bot"""
     def __init__(self):
+        self.config_file = "bot_config.json"
         self.config = {
-            'bot_name': 'Kaala Billota',
-            'version': '2.0.0',
-            'default_prefix': '!',
-            'embed_color': 0x5865F2,
-            'max_message_length': 2000,
-            'typing_timeout': 30,
-            'rate_limit_window': 3600,
-            'max_conversations_per_user': 100
+            'chat_frequency': 0.1,
+            'personality_mode': 'friendly',
+            'reactions_enabled': True,
+            'random_chat_enabled': True,
+            'mention_only': False,
+            'custom_prompt_enabled': True
         }
-    
-    def get(self, key: str, default: Any = None) -> Any:
-        """Get configuration value"""
-        return self.config.get(key, default)
-    
-    def set(self, key: str, value: Any):
-        """Set configuration value"""
-        self.config[key] = value
-    
-    def get_all(self) -> Dict[str, Any]:
-        """Get all configuration"""
-        return self.config.copy()
-    
-    def load_from_env(self):
-        """Load configuration from environment variables"""
+        self.load_config()
+
+    def load_config(self):
+        if os.path.exists(self.config_file):
+            try:
+                with open(self.config_file, 'r') as f:
+                    self.config.update(json.load(f))
+                logger.info("Loaded config from file.")
+            except Exception as e:
+                logger.error(f"Failed to load config: {e}")
+
+    def save_config(self):
         try:
-            # Bot settings
-            if os.getenv('BOT_NAME'):
-                self.config['bot_name'] = os.getenv('BOT_NAME')
-            
-            if os.getenv('BOT_PREFIX'):
-                self.config['default_prefix'] = os.getenv('BOT_PREFIX')
-            
-            # API settings
-            if os.getenv('GROQ_API_KEY'):
-                self.config['groq_api_key'] = os.getenv('GROQ_API_KEY')
-            
-            # Rate limiting
-            if os.getenv('RATE_LIMIT_WINDOW'):
-                self.config['rate_limit_window'] = int(os.getenv('RATE_LIMIT_WINDOW'))
-            
-            logger.info("Configuration loaded from environment")
-            
+            with open(self.config_file, 'w') as f:
+                json.dump(self.config, f, indent=2)
+            logger.info("Saved config to file.")
         except Exception as e:
-            logger.error(f"Error loading configuration: {e}")
+            logger.error(f"Failed to save config: {e}")
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return self.config.get(key, default)
+
+    def set(self, key: str, value: Any):
+        self.config[key] = value
+        self.save_config()
+
+    def get_all(self) -> Dict[str, Any]:
+        return self.config.copy()
+
+    def update(self, updates: Dict[str, Any]):
+        self.config.update(updates)
+        self.save_config()

@@ -149,6 +149,7 @@ class ChatSettingsView(discord.ui.View):
         current = self.bot.settings['chat_frequency']
         new_freq = min(0.5, current + 0.05)
         self.bot.settings['chat_frequency'] = new_freq
+        self.bot.config.set('chat_frequency', new_freq)
         
         embed = discord.Embed(
             title="✅ Chat Frequency Updated",
@@ -162,6 +163,7 @@ class ChatSettingsView(discord.ui.View):
         current = self.bot.settings['chat_frequency']
         new_freq = max(0.01, current - 0.05)
         self.bot.settings['chat_frequency'] = new_freq
+        self.bot.config.set('chat_frequency', new_freq)
         
         embed = discord.Embed(
             title="✅ Chat Frequency Updated",
@@ -172,8 +174,10 @@ class ChatSettingsView(discord.ui.View):
         
     @discord.ui.button(label="Toggle Random Chat", style=discord.ButtonStyle.secondary)
     async def toggle_random(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.bot.settings['random_chat_enabled'] = not self.bot.settings['random_chat_enabled']
-        status = "Enabled" if self.bot.settings['random_chat_enabled'] else "Disabled"
+        new_value = not self.bot.settings['random_chat_enabled']
+        self.bot.settings['random_chat_enabled'] = new_value
+        self.bot.config.set('random_chat_enabled', new_value)
+        status = "Enabled" if new_value else "Disabled"
         
         embed = discord.Embed(
             title="✅ Random Chat Updated",
@@ -318,9 +322,10 @@ class FeatureView(discord.ui.View):
         
     @discord.ui.button(label="Toggle Reactions", style=discord.ButtonStyle.primary)
     async def toggle_reactions(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.bot.settings['reactions_enabled'] = not self.bot.settings['reactions_enabled']
-        status = "Enabled" if self.bot.settings['reactions_enabled'] else "Disabled"
-        
+        new_value = not self.bot.settings['reactions_enabled']
+        self.bot.settings['reactions_enabled'] = new_value
+        self.bot.config.set('reactions_enabled', new_value)
+        status = "Enabled" if new_value else "Disabled"
         embed = discord.Embed(
             title="✅ Reactions Updated",
             description=f"Reactions {status}",
@@ -330,9 +335,10 @@ class FeatureView(discord.ui.View):
         
     @discord.ui.button(label="Toggle Custom Prompts", style=discord.ButtonStyle.secondary)
     async def toggle_custom_prompts(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.bot.settings['custom_prompt_enabled'] = not self.bot.settings['custom_prompt_enabled']
-        status = "Enabled" if self.bot.settings['custom_prompt_enabled'] else "Disabled"
-        
+        new_value = not self.bot.settings['custom_prompt_enabled']
+        self.bot.settings['custom_prompt_enabled'] = new_value
+        self.bot.config.set('custom_prompt_enabled', new_value)
+        status = "Enabled" if new_value else "Disabled"
         embed = discord.Embed(
             title="✅ Custom Prompts Updated",
             description=f"Custom prompts {status}",

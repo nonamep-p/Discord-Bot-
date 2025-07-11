@@ -161,12 +161,16 @@ class AdvancedDiscordBot(commands.Bot):
             is_dm = isinstance(message.channel, discord.DMChannel)
             is_name_called = self.is_name_mentioned(message.content)
 
-            # Determine if we should respond
-            should_respond = False
-            if is_mentioned or is_dm or is_name_called:
-                should_respond = True
-            elif self.settings['random_chat_enabled'] and random.random() < self.settings['chat_frequency']:
-                should_respond = True
+            # Enforce mention_only setting
+            if self.settings.get('mention_only', False):
+                should_respond = is_mentioned or is_dm
+            else:
+                should_respond = is_mentioned or is_dm or is_name_called
+
+            # Enforce random_chat_enabled and chat_frequency
+            if not should_respond and self.settings.get('random_chat_enabled', True):
+                if random.random() < self.settings.get('chat_frequency', 0.1):
+                    should_respond = True
 
             if not should_respond:
                 return
@@ -187,7 +191,7 @@ class AdvancedDiscordBot(commands.Bot):
                 response = self.personality.generate_response(
                     clean_content, 
                     message.author.display_name,
-                    self.settings['personality_mode'],
+                    self.settings.get('personality_mode', 'friendly'),
                     self.db.get_conversation_history(user_id),
                     self.api_client,
                     user_id,
@@ -201,8 +205,8 @@ class AdvancedDiscordBot(commands.Bot):
                     # Send response as normal text
                     sent_message = await message.reply(response)
 
-                    # Add random reactions if enabled
-                    if self.settings['reactions_enabled']:
+                    # Only add reactions if enabled
+                    if self.settings.get('reactions_enabled', True):
                         reactions = ['😊', '👍', '🎉', '💫', '✨', '🤔', '😄']
                         await sent_message.add_reaction(random.choice(reactions))
 

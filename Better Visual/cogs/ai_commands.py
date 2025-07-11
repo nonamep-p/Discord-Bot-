@@ -72,11 +72,34 @@ class AICog(commands.Cog):
 
     @commands.command(name='image')
     async def generate_image(self, ctx, *, prompt: str):
-        """Generate an image using DeepSeek's image generation"""
+        """Generate an image using DeepSeek's image generation or fallback if no API key"""
+        # Get current persona from bot instance
+        current_persona = getattr(self.bot, 'current_persona', 'default')
+        system_prompt = self.PERSONAS.get(current_persona, self.PERSONAS['default'])
+        
+        if not self.deepseek_api_key:
+            # Persona-aware fallback message
+            persona_fallbacks = {
+                'pirate': f"🏴‍☠️ Arr matey! I can't paint ye a picture right now, but imagine a grand scene: {prompt}",
+                'wizard': f"🧙‍♂️ By the ancient spells, I cannot conjure an image at this moment. Picture this in your mind: {prompt}",
+                'robot': f"🤖 Processing request... Sorry, image generation is offline. Please visualize: {prompt}",
+                'chef': f"👨‍🍳 My kitchen's out of ingredients for images! But imagine this dish: {prompt}",
+                'detective': f"🕵️ The evidence is missing! I can't show you an image, but here's what to picture: {prompt}",
+                'default': f"Sorry, I can't generate images right now. But imagine this: {prompt}"
+            }
+            persona_msg = persona_fallbacks.get(current_persona, persona_fallbacks['default'])
+            embed = discord.Embed(
+                title="Image Generation Unavailable",
+                description=persona_msg,
+                color=discord.Color.orange()
+            )
+            embed.set_footer(text="Add an API key to enable real image generation!")
+            await ctx.send(embed=embed)
+            return
         try:
             # Show typing indicator
             async with ctx.typing():
-                # Call DeepSeek Image Generation API
+                # --- Real API integration below (DeepSeek example) ---
                 url = "https://api.deepseek.com/v1/images/generations"
                 headers = {
                     "Authorization": f"Bearer {self.deepseek_api_key}",
@@ -88,12 +111,9 @@ class AICog(commands.Cog):
                     "n": 1,
                     "size": "1024x1024"
                 }
-                
                 response = requests.post(url, headers=headers, json=data)
                 response.raise_for_status()
-                
                 image_url = response.json()['data'][0]['url']
-                
                 # Create embed
                 image_embed = discord.Embed(
                     title="🎨 Generated Image",
@@ -102,9 +122,7 @@ class AICog(commands.Cog):
                 )
                 image_embed.set_image(url=image_url)
                 image_embed.set_footer(text=f"Requested by {ctx.author.display_name}")
-                
                 await ctx.send(embed=image_embed)
-                
         except Exception as e:
             embed = discord.Embed(
                 title="❌ Error",

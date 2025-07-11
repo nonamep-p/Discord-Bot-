@@ -14,17 +14,28 @@ class MediaCog(commands.Cog):
 
     @commands.command(name='gif')
     async def gif(self, ctx, *, query: str):
-        """Search for a GIF using Giphy"""
+        """Search for a GIF using Giphy or fallback if no API key"""
+        # Get current persona from bot instance
+        current_persona = getattr(self.bot, 'current_persona', 'default')
+        persona_fallbacks = {
+            'pirate': f"🏴‍☠️ Arr matey! I can't fetch a GIF right now, but imagine a wild scene: {query}",
+            'wizard': f"🧙‍♂️ My magic can't conjure GIFs at the moment. Picture this: {query}",
+            'robot': f"🤖 GIF search offline. Please visualize: {query}",
+            'chef': f"👨‍🍳 No GIFs in the kitchen! But imagine this: {query}",
+            'detective': f"🕵️ The GIF evidence is missing! Picture this: {query}",
+            'default': f"Sorry, I can't fetch GIFs right now. But imagine this: {query}"
+        }
+        if not self.giphy_api_key:
+            persona_msg = persona_fallbacks.get(current_persona, persona_fallbacks['default'])
+            embed = discord.Embed(
+                title="GIF Search Unavailable",
+                description=persona_msg,
+                color=discord.Color.orange()
+            )
+            embed.set_footer(text="Add a GIPHY_API_KEY to enable real GIF search!")
+            await ctx.send(embed=embed)
+            return
         try:
-            if not self.giphy_api_key:
-                embed = discord.Embed(
-                    title="❌ Error",
-                    description="Giphy API key not configured. Please add GIPHY_API_KEY to your .env file.",
-                    color=discord.Color.red()
-                )
-                await ctx.send(embed=embed)
-                return
-            
             # Show typing indicator
             async with ctx.typing():
                 # Giphy search API
@@ -35,15 +46,12 @@ class MediaCog(commands.Cog):
                     'limit': 25,
                     'rating': 'g'
                 }
-                
                 response = requests.get(url, params=params)
                 data = response.json()
-                
                 if data['data']:
                     # Pick a random GIF from results
                     gif = random.choice(data['data'])
                     gif_url = gif['images']['original']['url']
-                    
                     # Create embed
                     embed = discord.Embed(
                         title="🎬 GIF Found!",
@@ -52,7 +60,6 @@ class MediaCog(commands.Cog):
                     )
                     embed.set_image(url=gif_url)
                     embed.set_footer(text=f"Requested by {ctx.author.display_name}")
-                    
                     await ctx.send(embed=embed)
                 else:
                     embed = discord.Embed(
@@ -61,7 +68,6 @@ class MediaCog(commands.Cog):
                         color=discord.Color.orange()
                     )
                     await ctx.send(embed=embed)
-                    
         except Exception as e:
             embed = discord.Embed(
                 title="❌ Error",

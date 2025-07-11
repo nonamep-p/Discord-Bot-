@@ -45,7 +45,12 @@ class ConfigView(discord.ui.View):
             'witty': '😄 Clever and humorous',
             'casual': '😌 Relaxed and informal',
             'enthusiastic': '🎉 Energetic and excited',
-            'thoughtful': '🤔 Deep and reflective'
+            'thoughtful': '🤔 Deep and reflective',
+            'pirate': '🏴‍☠️ Swashbuckling adventurer',
+            'wizard': '🧙‍♂️ Wise and mystical',
+            'robot': '🤖 Technical and precise',
+            'chef': '👨‍🍳 Passionate about cooking',
+            'detective': '🕵️ Analytical and observant'
         }
         
         current = self.bot.settings['personality_mode']
@@ -55,9 +60,22 @@ class ConfigView(discord.ui.View):
             inline=False
         )
         
+        # Group personalities
+        basic_personalities = ['friendly', 'witty', 'casual', 'enthusiastic', 'thoughtful']
+        roleplay_personalities = ['pirate', 'wizard', 'robot', 'chef', 'detective']
+        
+        basic_desc = "\n".join([f"• **{k.title()}** - {v}" for k, v in personalities.items() if k in basic_personalities])
+        roleplay_desc = "\n".join([f"• **{k.title()}** - {v}" for k, v in personalities.items() if k in roleplay_personalities])
+        
         embed.add_field(
-            name="Available Personalities",
-            value="\n".join([f"• **{k.title()}** - {v}" for k, v in personalities.items()]),
+            name="😊 Basic Personalities",
+            value=basic_desc,
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🎭 Roleplay Characters",
+            value=roleplay_desc,
             inline=False
         )
         
@@ -126,7 +144,9 @@ class ChatSettingsView(discord.ui.View):
     async def increase_freq(self, interaction: discord.Interaction, button: discord.ui.Button):
         current = self.bot.settings['chat_frequency']
         new_freq = min(0.5, current + 0.05)
-        self.bot.settings['chat_frequency'] = new_freq
+        
+        # Update settings using the new method
+        self.bot.update_settings({'chat_frequency': new_freq})
         
         embed = discord.Embed(
             title="✅ Chat Frequency Updated",
@@ -139,7 +159,9 @@ class ChatSettingsView(discord.ui.View):
     async def decrease_freq(self, interaction: discord.Interaction, button: discord.ui.Button):
         current = self.bot.settings['chat_frequency']
         new_freq = max(0.01, current - 0.05)
-        self.bot.settings['chat_frequency'] = new_freq
+        
+        # Update settings using the new method
+        self.bot.update_settings({'chat_frequency': new_freq})
         
         embed = discord.Embed(
             title="✅ Chat Frequency Updated",
@@ -150,9 +172,12 @@ class ChatSettingsView(discord.ui.View):
         
     @discord.ui.button(label="Toggle Random Chat", style=discord.ButtonStyle.secondary)
     async def toggle_random(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.bot.settings['random_chat_enabled'] = not self.bot.settings['random_chat_enabled']
-        status = "Enabled" if self.bot.settings['random_chat_enabled'] else "Disabled"
+        new_value = not self.bot.settings['random_chat_enabled']
         
+        # Update settings using the new method
+        self.bot.update_settings({'random_chat_enabled': new_value})
+        
+        status = "Enabled" if new_value else "Disabled"
         embed = discord.Embed(
             title="✅ Random Chat Updated",
             description=f"Random chat {status}",
@@ -177,7 +202,7 @@ class PersonalityView(discord.ui.View):
         
     @discord.ui.button(label="Friendly", style=discord.ButtonStyle.primary, emoji="😊")
     async def friendly(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.bot.settings['personality_mode'] = 'friendly'
+        self.bot.update_settings({'personality_mode': 'friendly'})
         embed = discord.Embed(
             title="✅ Personality Updated",
             description="I'm now in **Friendly** mode - warm and approachable! 😊",
@@ -187,7 +212,7 @@ class PersonalityView(discord.ui.View):
         
     @discord.ui.button(label="Witty", style=discord.ButtonStyle.success, emoji="😄")
     async def witty(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.bot.settings['personality_mode'] = 'witty'
+        self.bot.update_settings({'personality_mode': 'witty'})
         embed = discord.Embed(
             title="✅ Personality Updated",
             description="I'm now in **Witty** mode - clever and humorous! 😄",
@@ -197,7 +222,7 @@ class PersonalityView(discord.ui.View):
         
     @discord.ui.button(label="Casual", style=discord.ButtonStyle.secondary, emoji="😌")
     async def casual(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.bot.settings['personality_mode'] = 'casual'
+        self.bot.update_settings({'personality_mode': 'casual'})
         embed = discord.Embed(
             title="✅ Personality Updated",
             description="I'm now in **Casual** mode - relaxed and informal! 😌",
@@ -207,7 +232,7 @@ class PersonalityView(discord.ui.View):
         
     @discord.ui.button(label="Enthusiastic", style=discord.ButtonStyle.danger, emoji="🎉")
     async def enthusiastic(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.bot.settings['personality_mode'] = 'enthusiastic'
+        self.bot.update_settings({'personality_mode': 'enthusiastic'})
         embed = discord.Embed(
             title="✅ Personality Updated",
             description="I'm now in **Enthusiastic** mode - energetic and excited! 🎉",
@@ -217,10 +242,60 @@ class PersonalityView(discord.ui.View):
         
     @discord.ui.button(label="Thoughtful", style=discord.ButtonStyle.primary, emoji="🤔")
     async def thoughtful(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.bot.settings['personality_mode'] = 'thoughtful'
+        self.bot.update_settings({'personality_mode': 'thoughtful'})
         embed = discord.Embed(
             title="✅ Personality Updated",
             description="I'm now in **Thoughtful** mode - deep and reflective! 🤔",
+            color=discord.Color.green()
+        )
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Pirate", style=discord.ButtonStyle.success, emoji="🏴‍☠️")
+    async def pirate(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.bot.update_settings({'personality_mode': 'pirate'})
+        embed = discord.Embed(
+            title="✅ Personality Updated",
+            description="Arr matey! I'm now in **Pirate** mode - swashbuckling adventurer! 🏴‍☠️",
+            color=discord.Color.green()
+        )
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Wizard", style=discord.ButtonStyle.secondary, emoji="🧙‍♂️")
+    async def wizard(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.bot.update_settings({'personality_mode': 'wizard'})
+        embed = discord.Embed(
+            title="✅ Personality Updated",
+            description="By the ancient spells! I'm now in **Wizard** mode - wise and mystical! 🧙‍♂️",
+            color=discord.Color.green()
+        )
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Robot", style=discord.ButtonStyle.danger, emoji="🤖")
+    async def robot(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.bot.update_settings({'personality_mode': 'robot'})
+        embed = discord.Embed(
+            title="✅ Personality Updated",
+            description="Processing... I'm now in **Robot** mode - technical and precise! 🤖",
+            color=discord.Color.green()
+        )
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Chef", style=discord.ButtonStyle.primary, emoji="👨‍🍳")
+    async def chef(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.bot.update_settings({'personality_mode': 'chef'})
+        embed = discord.Embed(
+            title="✅ Personality Updated",
+            description="Delicious! I'm now in **Chef** mode - passionate about cooking! 👨‍🍳",
+            color=discord.Color.green()
+        )
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Detective", style=discord.ButtonStyle.success, emoji="🕵️")
+    async def detective(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.bot.update_settings({'personality_mode': 'detective'})
+        embed = discord.Embed(
+            title="✅ Personality Updated",
+            description="The evidence suggests... I'm now in **Detective** mode - analytical and observant! 🕵️",
             color=discord.Color.green()
         )
         await interaction.response.edit_message(embed=embed, view=self)
@@ -296,9 +371,10 @@ class FeatureView(discord.ui.View):
         
     @discord.ui.button(label="Toggle Reactions", style=discord.ButtonStyle.primary)
     async def toggle_reactions(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.bot.settings['reactions_enabled'] = not self.bot.settings['reactions_enabled']
-        status = "Enabled" if self.bot.settings['reactions_enabled'] else "Disabled"
+        new_value = not self.bot.settings['reactions_enabled']
+        self.bot.update_settings({'reactions_enabled': new_value})
         
+        status = "Enabled" if new_value else "Disabled"
         embed = discord.Embed(
             title="✅ Reactions Updated",
             description=f"Reactions {status}",
@@ -308,9 +384,10 @@ class FeatureView(discord.ui.View):
         
     @discord.ui.button(label="Toggle Custom Prompts", style=discord.ButtonStyle.secondary)
     async def toggle_custom_prompts(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.bot.settings['custom_prompt_enabled'] = not self.bot.settings['custom_prompt_enabled']
-        status = "Enabled" if self.bot.settings['custom_prompt_enabled'] else "Disabled"
+        new_value = not self.bot.settings['custom_prompt_enabled']
+        self.bot.update_settings({'custom_prompt_enabled': new_value})
         
+        status = "Enabled" if new_value else "Disabled"
         embed = discord.Embed(
             title="✅ Custom Prompts Updated",
             description=f"Custom prompts {status}",
