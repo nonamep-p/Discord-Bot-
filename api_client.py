@@ -31,7 +31,7 @@ class APIClient:
                 else:
                     prompt += f"Bot: {content}\n"
             prompt += "Bot:"
-            model = genai.GenerativeModel('gemini-pro')
+            model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
             response = await asyncio.to_thread(model.generate_content, prompt)
             return response.text.strip() if hasattr(response, 'text') else str(response)
         except Exception as e:
@@ -63,11 +63,11 @@ class APIClient:
             return None
 
     async def generate_image(self, prompt: str) -> Optional[str]:
-        """Generate image using Gemini API"""
+        """Generate image using Gemini API (text fallback if vision not available)"""
         try:
-            model = genai.GenerativeModel('gemini-pro-vision')
+            # If vision model is not available, fallback to text
+            model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
             response = await asyncio.to_thread(model.generate_content, prompt)
-            # Gemini image generation returns a URL or base64; here we expect a URL or text
             if hasattr(response, 'text'):
                 return response.text.strip()
             return str(response)
