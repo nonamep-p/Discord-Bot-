@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from discord import app_commands
 import asyncio
 import logging
 
@@ -133,7 +132,7 @@ class ChatSettingsView(discord.ui.View):
     @discord.ui.button(label="Back", style=discord.ButtonStyle.grey)
     async def back(self, interaction: discord.Interaction, button: discord.ui.Button):
         embed = discord.Embed(
-            title="�� Bot Configuration",
+            title="🤖 Bot Configuration",
             description="Choose what you'd like to configure:",
             color=discord.Color.blue()
         )
@@ -178,7 +177,7 @@ class PersonalityView(discord.ui.View):
     @discord.ui.button(label="Back", style=discord.ButtonStyle.grey)
     async def back(self, interaction: discord.Interaction, button: discord.ui.Button):
         embed = discord.Embed(
-            title="�� Bot Configuration",
+            title="🤖 Bot Configuration",
             description="Choose what you'd like to configure:",
             color=discord.Color.blue()
         )
@@ -200,7 +199,7 @@ class FeatureView(discord.ui.View):
             description=f"Reactions {status}",
             color=discord.Color.green()
         )
-        await interaction.response.edit_message(embed=embed, view=self)
+        await interaction.response.edit_message(embed=embed, view=view=self)
         
     @discord.ui.button(label="Back", style=discord.ButtonStyle.grey)
     async def back(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -216,8 +215,8 @@ class ConfigCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
-    @app_commands.command(name="config", description="Configure bot settings")
-    async def config(self, interaction: discord.Interaction):
+    @commands.command(name="config", description="Configure bot settings")
+    async def config(self, ctx):
         """Interactive configuration panel"""
         embed = discord.Embed(
             title="🤖 Bot Configuration",
@@ -237,7 +236,7 @@ class ConfigCommands(commands.Cog):
         )
         
         view = ConfigView(self.bot)
-        await interaction.response.send_message(embed=embed, view=view)
+        await ctx.send(embed=embed, view=view)
 
 async def setup(bot):
     await bot.add_cog(ConfigCommands(bot))

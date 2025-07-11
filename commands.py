@@ -17,9 +17,18 @@ class BotCommands(commands.Cog):
     async def help_command(self, ctx):
         """Show all available commands"""
         embed = discord.Embed(
-            title="🤖 Bot Commands & Features",
+            title="🤖 Kaala Billota - Bot Commands & Features",
             description="Here's everything I can do! I also respond to normal messages naturally 😊",
             color=discord.Color.gold()
+        )
+        
+        embed.add_field(
+            name="⚙️ Configuration",
+            value="""
+            `!config` - Interactive configuration panel
+            `!help` - Show this help message
+            """,
+            inline=False
         )
         
         embed.add_field(
@@ -27,15 +36,6 @@ class BotCommands(commands.Cog):
             value="""
             `!chat [message]` - Direct AI chat (10 coins)
             `!roleplay [character]` - Switch personality mode
-            """,
-            inline=False
-        )
-        
-        embed.add_field(
-            name="🎨 Fun Commands", 
-            value="""
-            `!image [prompt]` - Generate image (50 coins)
-            `!gif [search]` - Find GIF (5 coins)
             """,
             inline=False
         )
@@ -55,24 +55,24 @@ class BotCommands(commands.Cog):
             value="""
             `!limits` - Show remaining API limits
             `!ping` - Check bot status
-            `!help` - Show this message
             """,
             inline=False
         )
         
         embed.add_field(
-            name="✨ Special Features",
+            name="✨ Natural Features",
             value="""
-            • I respond to ALL messages naturally!
-            • Mention me or DM me for conversations
+            • I respond when you call my name: **bilota**, **billota**, **kaala**
+            • I respond to mentions and DMs
+            • I join conversations randomly (configurable)
             • I remember our chat history
-            • I can roleplay different characters
-            • I add reactions and use emojis
+            • I can change personality based on conversation
+            • I add reactions and use emojis naturally
             """,
             inline=False
         )
         
-        embed.set_footer(text="💡 Tip: I respond to normal messages too, not just commands!")
+        embed.set_footer(text="💡 Tip: Try calling my name or just chat naturally!")
         await ctx.send(embed=embed)
         
     @commands.command(name='ping')
@@ -198,7 +198,7 @@ class BotCommands(commands.Cog):
             user_data = self.bot.db.get_user(user_id)
             
             # Generate response
-            response = await self.bot.personality.generate_response(
+            response = self.bot.personality.generate_response(
                 message,
                 ctx.author.display_name,
                 user_data.get('personality_mode', 'default'),
@@ -244,77 +244,6 @@ class BotCommands(commands.Cog):
         await ctx.send(embed=embed)
         await ctx.message.add_reaction('🎭')
         
-    @commands.command(name='gif')
-    async def gif(self, ctx, *, search_term: str = None):
-        """Search for a GIF"""
-        if not search_term:
-            await ctx.send("❌ Please provide a search term for the GIF!")
-            return
-            
-        user_id = str(ctx.author.id)
-        
-        # Check and spend coins
-        if not self.bot.db.spend_coins(user_id, 5):
-            await ctx.send("❌ You need 5 coins to use this command!")
-            return
-            
-        async with ctx.typing():
-            gif_url = await self.bot.api_client.search_gif(search_term)
-            
-            if gif_url:
-                embed = discord.Embed(
-                    title=f"🎬 GIF: {search_term}",
-                    color=discord.Color.green()
-                )
-                embed.set_image(url=gif_url)
-                embed.set_footer(text="🎬 GIF • 5 coins spent")
-                
-                await ctx.send(embed=embed)
-            else:
-                await ctx.send(f"❌ Couldn't find a GIF for '{search_term}'!")
-                # Refund coins on failure
-                self.bot.db.add_coins(user_id, 5)
-                
-    @commands.command(name='image')
-    async def image(self, ctx, *, prompt: str = None):
-        """Generate an image"""
-        if not prompt:
-            await ctx.send("❌ Please provide a prompt for image generation!")
-            return
-            
-        user_id = str(ctx.author.id)
-        
-        # Check rate limits
-        usage_data = self.bot.db.get_usage_data(user_id)
-        if usage_data.get('images_today', 0) >= 10:
-            await ctx.send("⏰ You've hit your daily image limit (10)! Try again tomorrow.")
-            return
-            
-        # Check and spend coins
-        if not self.bot.db.spend_coins(user_id, 50):
-            await ctx.send("❌ You need 50 coins to use this command!")
-            return
-            
-        async with ctx.typing():
-            result = await self.bot.api_client.generate_image(prompt)
-            
-            if result:
-                # Update usage
-                self.bot.db.update_usage(user_id, 'image')
-                
-                embed = discord.Embed(
-                    title=f"🎨 Generated Image",
-                    description=f"**Prompt:** {prompt}\n\n{result}",
-                    color=discord.Color.orange()
-                )
-                embed.set_footer(text="🎨 Image Generation • 50 coins spent")
-                
-                await ctx.send(embed=embed)
-            else:
-                await ctx.send("❌ Couldn't generate image right now!")
-                # Refund coins on failure
-                self.bot.db.add_coins(user_id, 50)
-                
     @commands.command(name='limits')
     async def limits(self, ctx):
         """Show remaining API limits"""

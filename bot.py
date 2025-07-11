@@ -34,7 +34,7 @@ class AdvancedDiscordBot(commands.Bot):
         self.personality = PersonalityManager()
         self.rate_limiter = RateLimiter()
         
-        # Bot settings - configurable via /config
+        # Bot settings - configurable via !config
         self.settings = {
             'chat_frequency': 0.1,  # 10% chance to join random chat
             'personality_mode': 'friendly',
@@ -42,6 +42,11 @@ class AdvancedDiscordBot(commands.Bot):
             'random_chat_enabled': True,
             'mention_only': False
         }
+        
+        # Bot names that will trigger responses
+        self.bot_names = [
+            'bilota', 'billota', 'kaala', 'kaala billota', 'bot', 'ai', 'assistant'
+        ]
         
         # Add commands
         self.bot_commands = BotCommands(self)
@@ -56,11 +61,16 @@ class AdvancedDiscordBot(commands.Bot):
             member = guild.get_member(user_id)
             return f"@{member.display_name}" if member else "@someone"
         return re.sub(r"<@!?(\d+)>", repl, message_content)
+    
+    def is_name_mentioned(self, message_content):
+        """Check if bot's name is mentioned in the message"""
+        content_lower = message_content.lower()
+        return any(name in content_lower for name in self.bot_names)
         
     async def on_ready(self):
         """Called when bot is ready"""
         logger.info(f'{self.user} has connected to Discord! 🎉')
-        await self.change_presence(activity=discord.Game(name="Chatting with friends! Type /config"))
+        await self.change_presence(activity=discord.Game(name="Chatting with friends! Type !config"))
         
     async def on_message(self, message):
         """Handle all messages - respond naturally, not just to commands"""
@@ -80,13 +90,14 @@ class AdvancedDiscordBot(commands.Bot):
         try:
             user_id = str(message.author.id)
             
-            # Check if bot is mentioned or DM
+            # Check if bot is mentioned, DM, or name is called
             is_mentioned = self.user in message.mentions
             is_dm = isinstance(message.channel, discord.DMChannel)
+            is_name_called = self.is_name_mentioned(message.content)
             
             # Determine if we should respond
             should_respond = False
-            if is_mentioned or is_dm:
+            if is_mentioned or is_dm or is_name_called:
                 should_respond = True
             elif self.settings['random_chat_enabled'] and random.random() < self.settings['chat_frequency']:
                 should_respond = True
