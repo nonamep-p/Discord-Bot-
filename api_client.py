@@ -10,23 +10,21 @@ class APIClient:
     def __init__(self):
         self.groq_api_key = os.getenv('GROQ_API_KEY')
         openai.api_key = self.groq_api_key
-        openai.api_base = "https://api.groq.com/openai/v1"
+        openai.base_url = "https://api.groq.com/openai/v1"
 
     async def chat_with_groq(self, messages: List[Dict], personality_prompt: str = "") -> Optional[str]:
-        """Send chat request to Groq API (Llama-3-70b)"""
         try:
-            # Format messages for OpenAI API
             chat_messages = []
             if personality_prompt:
                 chat_messages.append({"role": "system", "content": personality_prompt})
             chat_messages.extend(messages)
-            response = await openai.ChatCompletion.acreate(
-                model="llama3-70b-8192",  # or "mixtral-8x7b-32768"
+            response = await openai.chat.completions.create(
+                model="llama3-70b-8192",
                 messages=chat_messages,
                 max_tokens=1024,
                 temperature=0.7,
             )
-            return response.choices[0].message["content"].strip()
+            return response.choices[0].message.content.strip()
         except Exception as e:
             logger.error(f"Error calling Groq API: {e}")
             return None
