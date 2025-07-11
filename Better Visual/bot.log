@@ -1,0 +1,19 @@
+nohup: ignoring input
+[2025-07-10 19:53:20] [INFO    ] discord.client: logging in using static token
+[2025-07-10 19:53:21] [INFO    ] discord.gateway: Shard ID None has connected to Gateway (Session ID: 511ea2bca5240060d2335acaba3e869f).
+[2025-07-10 20:30:45] [ERROR   ] discord.client: Attempting a reconnect in 1.71s
+Traceback (most recent call last):
+  File "/home/ubuntu/discord-ai-bot/venv/lib/python3.10/site-packages/discord/client.py", line 659, in connect
+    await self.ws.poll_event()
+  File "/home/ubuntu/discord-ai-bot/venv/lib/python3.10/site-packages/discord/gateway.py", line 646, in poll_event
+    raise ConnectionClosed(self.socket, shard_id=self.shard_id, code=code) from None
+discord.errors.ConnectionClosed: Shard ID None WebSocket closed with 1000
+[2025-07-10 20:30:47] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 511ea2bca5240060d2335acaba3e869f.
+[2025-07-10 23:04:42] [ERROR   ] discord.client: Attempting a reconnect in 1.40s
+Traceback (most recent call last):
+  File "/home/ubuntu/discord-ai-bot/venv/lib/python3.10/site-packages/discord/client.py", line 659, in connect
+    await self.ws.poll_event()
+  File "/home/ubuntu/discord-ai-bot/venv/lib/python3.10/site-packages/discord/gateway.py", line 646, in poll_event
+    raise ConnectionClosed(self.socket, shard_id=self.shard_id, code=code) from None
+discord.errors.ConnectionClosed: Shard ID None WebSocket closed with 1000
+[2025-07-10 23:04:44] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 511ea2bca5240060d2335acaba3e869f.
