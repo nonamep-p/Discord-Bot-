@@ -79,7 +79,7 @@ class AdvancedDiscordBot(commands.Bot):
             
             # Generate natural response using personality
             async with message.channel.typing():
-                response = await self.personality.generate_response(
+                response = self.personality.generate_response(
                     message.content, 
                     message.author.display_name,
                     user_data.get('personality_mode', 'default'),
