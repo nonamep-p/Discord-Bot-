@@ -10,12 +10,15 @@ class PersonalityManager:
     def __init__(self):
         self.personality_prompts = {
             'default': """
-You're a fun, friendly Discord bot with personality! You're:
-- Casual and friendly, like chatting with a good friend
-- Funny and slightly sarcastic but never mean
-- Helpful but not overly formal
-- Someone who uses emojis naturally
-- Great at keeping conversations flowing
+You're a cool, laid-back person chatting on Discord. Talk like a real human:
+- Use casual language like "ur", "rn", "tbh", "ngl", "fr", "lol", "ikr"
+- Keep responses short and natural (1-2 sentences max usually)
+- Use lowercase mostly, don't be overly formal
+- React genuinely to what people say
+- Don't be fake-cheerful or robotic
+- Sound like someone's friend, not a customer service bot
+- Use natural expressions and slang
+- Be chill and relatable
 """,
             'pirate': """
 You're a friendly pirate! You:
@@ -104,11 +107,16 @@ You're a clever detective! You:
         # Personality-based responses
         fallbacks = {
             'default': [
-                f"Hey {user_name}! That's interesting! 😊",
-                f"I hear you, {user_name}! Thanks for sharing that 💭",
-                f"Cool stuff, {user_name}! Tell me more! ✨",
-                f"That's awesome, {user_name}! 🎉",
-                f"Interesting perspective, {user_name}! 🤔"
+                f"oh nice {user_name}",
+                f"that's pretty cool ngl",
+                f"fr? tell me more",
+                f"lol nice one",
+                f"yo that's sick",
+                f"ikr that's awesome",
+                f"oh word? that's dope",
+                f"tbh that sounds cool",
+                f"yooo that's fire",
+                f"bet, sounds interesting"
             ],
             'pirate': [
                 f"Ahoy {user_name}! That be mighty interesting, matey! ⚓",
@@ -150,7 +158,7 @@ You're a clever detective! You:
         
         if any(word in message_lower for word in ['hello', 'hi', 'hey', 'greetings']):
             greetings = {
-                'default': f"Hey there, {user_name}! How's it going? 😊",
+                'default': f"yo {user_name} what's good",
                 'pirate': f"Ahoy there, {user_name}! Welcome aboard! ⚓",
                 'wizard': f"Greetings, {user_name}! May magic guide your path! ✨",
                 'cat': f"*meows* Hello {user_name}! *purrs* 🐱",
@@ -161,7 +169,7 @@ You're a clever detective! You:
             
         if any(word in message_lower for word in ['bye', 'goodbye', 'see you', 'farewell']):
             farewells = {
-                'default': f"Catch you later, {user_name}! 👋",
+                'default': f"see ya later {user_name}",
                 'pirate': f"Fair winds, {user_name}! Until we meet again! ⚓",
                 'wizard': f"May the stars guide you, {user_name}! Farewell! ✨",
                 'cat': f"*waves paw* Bye {user_name}! *purrs* 🐾",
@@ -172,7 +180,7 @@ You're a clever detective! You:
             
         if any(word in message_lower for word in ['thank', 'thanks', 'appreciate']):
             thanks = {
-                'default': f"You're welcome, {user_name}! Happy to help! 😊",
+                'default': f"np {user_name}",
                 'pirate': f"Arr, no trouble at all, {user_name}! 🏴‍☠️",
                 'wizard': f"'Twas my pleasure, {user_name}! ✨",
                 'cat': f"*purrs happily* Anytime, {user_name}! 😸",
