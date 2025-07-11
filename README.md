@@ -1,4 +1,4 @@
-# 🤖 Kaala Billota - Advanced Discord Bot
+# 🤖 Kaala Billota - Advanced Disc  ord Bot
 
 A human-like Discord chatbot with custom personality prompts, security features, and Wick protection.
 
@@ -152,4 +152,10 @@ Feel free to contribute by:
 
 ---
 
-**Note**: This bot is designed to be human-like and avoid detection by moderation bots like Wick. Use responsibly and in accordance with Discord's Terms of Service.
+## 🔒 Privacy & Compliance
+
+- This bot does **not collect or share personal data**.
+- All features comply with [Discord’s Terms of Service](https://discord.com/terms) and [Developer Policy](https://discord.com/developers/docs/policies-and-agreements/developer-policy).
+- Conversation history and user coins are stored securely and never shared.
+- The bot does not send unsolicited DMs or spam.
+- No NSFW, harmful, or illegal content is allowed.
