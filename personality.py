@@ -90,7 +90,7 @@ You're a clever detective! You:
             
             # Use API client if available, otherwise fallback
             if api_client:
-                response = await api_client.chat_with_deepseek(context_messages, personality_prompt)
+                response = await api_client.chat_with_gemini(context_messages, personality_prompt)
                 if response:
                     return response
             
