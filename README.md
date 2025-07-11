@@ -1,6 +1,6 @@
 # 🤖 Kaala Billota - Advanced Discord Bot
 
-A human-like Discord chatbot with custom personality prompts, security features, Wick protection, and real GIF search.
+A human-like Discord chatbot with custom personality prompts, security features, Wick protection, real GIF search, and advanced analytics.
 
 ## ✨ Features
 
@@ -16,6 +16,12 @@ A human-like Discord chatbot with custom personality prompts, security features,
 - **Message sanitization** - Removes suspicious content
 - **Anti-spam protection** - Monitors message frequency
 - **Blocked word filtering** - Prevents token leaks
+- **Advanced security toggles** - Enable/disable advanced security features
+- **User blocking capabilities**
+
+### 📊 Advanced Analytics & Policy Compliance
+- **Analytics/statistics** - Real-time bot and server analytics
+- **Discord policy compliance status** - Live compliance checks and status
 
 ### 🎮 Interactive Configuration
 - `!config` - Interactive configuration panel
@@ -23,6 +29,7 @@ A human-like Discord chatbot with custom personality prompts, security features,
 - Personality mode selection
 - Feature toggles
 - Custom prompt management
+- **Server-specific config** - All settings are now per-server
 
 ### 💬 Natural Conversation
 - Responds to mentions, DMs, and name calls
@@ -73,12 +80,6 @@ python3 bot.py
 !prompt set You are a helpful community member who answers questions thoughtfully
 ```
 
-## ⚠️ Coming Soon / Visual-Only Features
-- Advanced analytics/statistics (UI only, not backed by real data)
-- Discord policy compliance status (UI only)
-- Some advanced security toggles (UI/buttons exist, backend logic missing)
-- Some server-specific config (UI exists, not all settings are per-server)
-
 ## 🛡️ Wick Protection
 
 This bot includes several features to avoid Wick bot detection:
@@ -110,6 +111,7 @@ This bot includes several features to avoid Wick bot detection:
 - **Rate limiting** to prevent abuse
 - **Anti-spam protection**
 - **User blocking capabilities**
+- **Advanced security toggles**
 
 ## 📁 Project Structure
 
