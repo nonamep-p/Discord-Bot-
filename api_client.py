@@ -10,7 +10,7 @@ class APIClient:
     def __init__(self):
         self.groq_api_key = os.getenv('GROQ_API_KEY')
         openai.api_key = self.groq_api_key
-        openai.base_url = "https://api.groq.com/openai/v1"
+        openai.base_url = "https://api.groq.com/openai/v1/"
 
     async def chat_with_groq(self, messages: List[Dict], personality_prompt: str = "") -> Optional[str]:
         try:
