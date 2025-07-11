@@ -1,64 +1,55 @@
 import os
+import logging
+from typing import Dict, Any
+
+logger = logging.getLogger(__name__)
 
 class Config:
-    """Configuration settings for the Discord bot"""
+    """Configuration management for the bot"""
     
     def __init__(self):
-        # API Keys
-        self.discord_token = os.getenv('DISCORD_BOT_TOKEN')
-        self.deepseek_api_key = os.getenv('DEEPSEEK_API_KEY', 'default_deepseek_key')
-        self.giphy_api_key = os.getenv('GIPHY_API_KEY', 'default_giphy_key')
-        
-        # Bot settings
-        self.command_prefix = '!'
-        self.max_message_length = 2000
-        
-        # Economy settings
-        self.starting_coins = 1000
-        self.daily_reward = 100
-        
-        # Command costs
-        self.command_costs = {
-            'chat': 10,
-            'image': 50,
-            'gif': 5,
-            'daily': 0,
-            'balance': 0,
-            'gift': 0,
-            'limits': 0,
-            'ping': 0,
-            'help': 0,
-            'roleplay': 0
+        self.config = {
+            'bot_name': 'Kaala Billota',
+            'version': '2.0.0',
+            'default_prefix': '!',
+            'embed_color': 0x5865F2,
+            'max_message_length': 2000,
+            'typing_timeout': 30,
+            'rate_limit_window': 3600,
+            'max_conversations_per_user': 100
         }
-        
-        # Rate limits
-        self.rate_limits = {
-            'api_calls_per_hour': 50,
-            'images_per_day': 10,
-            'conversations_per_minute': 5
-        }
-        
-        # File paths
-        self.data_dir = 'data'
-        self.users_file = f'{self.data_dir}/users.json'
-        self.usage_file = f'{self.data_dir}/usage.json'
-        self.conversations_file = f'{self.data_dir}/conversations.json'
-        
-        # API URLs
-        self.deepseek_api_url = 'https://api.deepseek.com/v1/chat/completions'
-        self.giphy_api_url = 'https://api.giphy.com/v1/gifs/search'
-        
-        # Personality settings
-        self.max_conversation_history = 5
-        self.personality_traits = [
-            "funny and witty",
-            "helpful but slightly sarcastic", 
-            "friendly and casual",
-            "uses emojis naturally",
-            "remembers conversation context",
-            "acts like a real person, not a formal assistant"
-        ]
-        
-    def get_command_cost(self, command):
-        """Get the coin cost for a command"""
-        return self.command_costs.get(command, 0)
+    
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get configuration value"""
+        return self.config.get(key, default)
+    
+    def set(self, key: str, value: Any):
+        """Set configuration value"""
+        self.config[key] = value
+    
+    def get_all(self) -> Dict[str, Any]:
+        """Get all configuration"""
+        return self.config.copy()
+    
+    def load_from_env(self):
+        """Load configuration from environment variables"""
+        try:
+            # Bot settings
+            if os.getenv('BOT_NAME'):
+                self.config['bot_name'] = os.getenv('BOT_NAME')
+            
+            if os.getenv('BOT_PREFIX'):
+                self.config['default_prefix'] = os.getenv('BOT_PREFIX')
+            
+            # API settings
+            if os.getenv('GROQ_API_KEY'):
+                self.config['groq_api_key'] = os.getenv('GROQ_API_KEY')
+            
+            # Rate limiting
+            if os.getenv('RATE_LIMIT_WINDOW'):
+                self.config['rate_limit_window'] = int(os.getenv('RATE_LIMIT_WINDOW'))
+            
+            logger.info("Configuration loaded from environment")
+            
+        except Exception as e:
+            logger.error(f"Error loading configuration: {e}")
