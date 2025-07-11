@@ -183,6 +183,40 @@ class Database:
         except Exception as e:
             logger.error(f"Error adding coins: {e}")
     
+    def transfer_coins(self, sender_id: str, receiver_id: str, amount: int) -> bool:
+        """Transfer coins between users"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            # Check if sender has enough coins
+            cursor.execute('''
+                SELECT coins FROM users WHERE user_id = ?
+            ''', (sender_id,))
+            
+            sender_result = cursor.fetchone()
+            if not sender_result or sender_result[0] < amount:
+                conn.close()
+                return False
+            
+            # Transfer coins
+            cursor.execute('''
+                UPDATE users SET coins = coins - ? WHERE user_id = ?
+            ''', (amount, sender_id))
+            
+            cursor.execute('''
+                UPDATE users SET coins = coins + ? WHERE user_id = ?
+            ''', (amount, receiver_id))
+            
+            conn.commit()
+            conn.close()
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error transferring coins: {e}")
+            return False
+    
     def can_claim_daily(self, user_id: str) -> bool:
         """Check if user can claim daily reward"""
         try:
