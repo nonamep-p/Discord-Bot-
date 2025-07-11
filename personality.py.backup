@@ -42,51 +42,12 @@ PERSONALITY_PROMPTS = {
 }
 
 class PersonalityManager:
-    """Human-like, flexible Discord chatbot with personality modes and custom prompts."""
+    """Human-like, flexible Discord chatbot with personality modes."""
     
-    def __init__(self):
-        self.custom_prompts = {}  # Store custom prompts per user/guild
-        self.default_custom_prompt = None  # Global custom prompt
-    
-    def set_custom_prompt(self, prompt: str, user_id: str = None, guild_id: str = None):
-        """Set a custom prompt for the bot"""
-        if user_id:
-            self.custom_prompts[f"user_{user_id}"] = prompt
-        elif guild_id:
-            self.custom_prompts[f"guild_{guild_id}"] = prompt
-        else:
-            self.default_custom_prompt = prompt
-        logger.info(f"Custom prompt set for {user_id or guild_id or 'global'}")
-    
-    def get_custom_prompt(self, user_id: str = None, guild_id: str = None) -> Optional[str]:
-        """Get custom prompt for user/guild"""
-        if user_id and f"user_{user_id}" in self.custom_prompts:
-            return self.custom_prompts[f"user_{user_id}"]
-        elif guild_id and f"guild_{guild_id}" in self.custom_prompts:
-            return self.custom_prompts[f"guild_{guild_id}"]
-        return self.default_custom_prompt
-    
-    def clear_custom_prompt(self, user_id: str = None, guild_id: str = None):
-        """Clear custom prompt"""
-        if user_id:
-            self.custom_prompts.pop(f"user_{user_id}", None)
-        elif guild_id:
-            self.custom_prompts.pop(f"guild_{guild_id}", None)
-        else:
-            self.default_custom_prompt = None
-        logger.info(f"Custom prompt cleared for {user_id or guild_id or 'global'}")
-    
-    def generate_response(self, message: str, user_name: str, personality_mode: str, conversation_history: List[Dict], api_client=None, user_id: str = None, guild_id: str = None) -> Optional[str]:
+    def generate_response(self, message: str, user_name: str, personality_mode: str, conversation_history: List[Dict], api_client=None) -> Optional[str]:
         try:
-            # Check for custom prompt first
-            custom_prompt = self.get_custom_prompt(user_id, guild_id)
-            
-            if custom_prompt:
-                # Use custom prompt as primary personality
-                personality_prompt = custom_prompt
-            else:
-                # Use predefined personality modes
-                personality_prompt = PERSONALITY_PROMPTS.get(personality_mode, PERSONALITY_PROMPTS['friendly'])
+            # Get personality prompt
+            personality_prompt = PERSONALITY_PROMPTS.get(personality_mode, PERSONALITY_PROMPTS['friendly'])
             
             context_messages = []
             

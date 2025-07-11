@@ -1,152 +1,142 @@
-# Kaala Billota - Advanced Discord Bot
+# 🤖 Kaala Billota - Advanced Discord Bot
 
-A human-like conversational AI Discord bot with personality shifts, interactive configuration, and natural conversation capabilities.
+A human-like Discord chatbot with custom personality prompts, security features, and Wick protection.
 
-## 🌟 Features
+## ✨ Features
 
-### 🤖 AI Features
-- **Human-like conversation** - Responds naturally to messages, not just commands
-- **Personality modes** - Switch between friendly, witty, casual, enthusiastic, and thoughtful
-- **Groq Llama-3 integration** - Powered by Groq's fast LLM
-- **Memory system** - Remembers conversation history
-- **Natural mention handling** - Replaces Discord mentions with display names
+### 🎭 Custom Personality Prompts
+- Set your own personality prompt: `!prompt set <your prompt>`
+- Clear custom prompt: `!prompt clear`
+- Show current prompt: `!prompt show`
+- Maintains mood shifting and personality modes
 
-### ⚙️ Configuration
-- **Interactive `/config` command** - Modern embed-based configuration
-- **Real-time settings** - Adjust chat frequency, personality, and features
-- **Button-based UI** - Easy-to-use configuration panels
-- **Admin controls** - Configure bot behavior from Discord
-
-### �� Chat Features
-- **Random participation** - Joins conversations naturally (configurable frequency)
-- **Mention responses** - Always responds when mentioned
-- **DM support** - Full conversation in DMs
-- **Reaction system** - Adds natural reactions to responses
+### 🛡️ Security & Protection
+- **Wick bot protection** - Human-like behavior to avoid detection
 - **Rate limiting** - Prevents spam and abuse
+- **Message sanitization** - Removes suspicious content
+- **Anti-spam protection** - Monitors message frequency
+- **Blocked word filtering** - Prevents token leaks
 
-## 🚀 Quick Start
+### 🎮 Interactive Configuration
+- `!config` - Interactive configuration panel
+- Chat frequency adjustment
+- Personality mode selection
+- Feature toggles
+- Custom prompt management
+
+### 💬 Natural Conversation
+- Responds to mentions, DMs, and name calls
+- Random chat participation
+- Memory of conversation history
+- Human-like typing indicators
+- Natural response delays
+
+## �� Quick Start
 
 ### 1. Environment Setup
 ```bash
-# Clone the repository
-git clone https://github.com/nonamep-p/Discord-Bot-.git
-cd Discord-Bot-
+# Required environment variables
+DISCORD_BOT_TOKEN=your_discord_bot_token
+GROQ_API_KEY=your_groq_api_key
+```
 
-# Install dependencies
+### 2. Install Dependencies
+```bash
 pip install -r requirements.txt
 ```
 
-### 2. Environment Variables
-Create a `.env` file:
-```env
-DISCORD_BOT_TOKEN=your_discord_bot_token_here
-GROQ_API_KEY=your_groq_api_key_here
-```
-
-### 3. Discord Bot Setup
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-2. Create a new application
-3. Go to "Bot" tab and create a bot
-4. Copy the bot token to your `.env` file
-5. Enable "Message Content Intent" in Bot settings
-6. Use OAuth2 URL Generator to invite bot with permissions:
-   - Send Messages
-   - Read Message History
-   - Embed Links
-   - Use Slash Commands
-
-### 4. Groq API Setup
-1. Go to [Groq Console](https://console.groq.com/)
-2. Create an account and get your API key
-3. Add the key to your `.env` file
-
-### 5. Run the Bot
+### 3. Run the Bot
 ```bash
-python main.py
+python3 bot.py
 ```
 
 ## 📋 Commands
 
 ### Configuration
-- `/config` - Interactive configuration panel
+- `!config` - Open interactive configuration panel
+- `!prompt set <prompt>` - Set custom personality prompt
+- `!prompt clear` - Clear custom prompt
+- `!prompt show` - Show current prompt
 
-### Chat Commands
-- `!help` - Show all commands
-- `!ping` - Check bot status
-- `!balance` - Check coin balance
-- `!daily` - Claim daily reward
+### Example Custom Prompts
+```
+!prompt set You are a friendly gaming expert who loves helping with game strategies
+!prompt set You are a casual Discord user who loves memes and fun conversations
+!prompt set You are a helpful community member who answers questions thoughtfully
+```
 
-### AI Commands
-- `!chat [message]` - Direct AI chat
-- `!roleplay [character]` - Switch personality mode
+## 🛡️ Wick Protection
 
-## ⚙️ Configuration
+This bot includes several features to avoid Wick bot detection:
 
-Use `/config` to access the interactive configuration panel:
+- **Human-like delays** between responses
+- **Typing indicators** to simulate human behavior
+- **Varied response styles** and lengths
+- **Natural conversation patterns**
+- **Rate limiting** to prevent spam
+- **Customizable chat frequency**
+
+## 🔧 Configuration
 
 ### Chat Settings
-- **Chat Frequency** - How often the bot joins random conversations
-- **Random Chat** - Enable/disable random participation
-- **Mention Only** - Only respond when mentioned
+- **Chat Frequency**: 1-50% chance to join random conversations
+- **Random Chat**: Enable/disable random participation
+- **Mention Only**: Only respond when mentioned
+- **Reactions**: Enable/disable random reactions
 
-### Personality Settings
-- **Friendly** - Warm and approachable
-- **Witty** - Clever and humorous
-- **Casual** - Relaxed and informal
-- **Enthusiastic** - Energetic and excited
-- **Thoughtful** - Deep and reflective
+### Personality Modes
+- **Friendly**: Warm and approachable
+- **Witty**: Clever and humorous
+- **Casual**: Relaxed and informal
+- **Enthusiastic**: Energetic and excited
+- **Thoughtful**: Deep and reflective
 
-### Feature Settings
-- **Reactions** - Enable/disable reaction emojis
-- **Memory** - Conversation history (always enabled)
-- **Personality Shifts** - Dynamic personality changes
+### Security Features
+- **Message filtering** for suspicious content
+- **Rate limiting** to prevent abuse
+- **Anti-spam protection**
+- **User blocking capabilities**
 
-## 🏗️ Architecture
+## 📁 Project Structure
 
 ```
-├── main.py              # Entry point
-├── bot.py               # Main bot class
-├── api_client.py        # Groq API integration
-├── personality.py       # Personality management
-├── commands.py          # Command handlers
-├── config_commands.py   # Interactive config
-├── config.py           # Configuration management
-├── database.py         # Data persistence
-└── rate_limiter.py     # Rate limiting
+Discord-Bot-/
+├── bot.py                 # Main bot file
+├── personality.py         # Personality management
+├── config_commands.py     # Interactive configuration
+├── custom_prompt_commands.py # Custom prompt commands
+├── security.py           # Security features
+├── wick_protection.py    # Wick avoidance
+├── database.py           # Data storage
+├── api_client.py         # API integration
+├── rate_limiter.py       # Rate limiting
+├── requirements.txt      # Dependencies
+├── deploy.sh            # Deployment script
+└── SERVER_INTEGRATION_GUIDE.md # Wick avoidance guide
 ```
 
-## 🚀 Deployment
+## 🔒 Security
 
-### Render (Recommended)
-1. Fork this repository
-2. Connect to Render
-3. Set environment variables
-4. Deploy automatically
+- No hardcoded tokens
+- Environment variable protection
+- Message sanitization
+- Rate limiting
+- Anti-spam measures
+- Suspicious activity monitoring
 
-### Railway
-1. Connect your GitHub repo
-2. Set environment variables
-3. Deploy with Railway
+## 🚨 Troubleshooting
 
-### Local/Server
-```bash
-# Install dependencies
-pip install -r requirements.txt
+### Common Issues
+1. **Bot not responding**: Check permissions and token
+2. **Wick kicks bot**: Reduce chat frequency, use custom prompts
+3. **Permission errors**: Verify bot has required permissions
+4. **Rate limiting**: Bot has built-in protection
 
-# Set environment variables
-export DISCORD_BOT_TOKEN=your_token
-export GROQ_API_KEY=your_key
-
-# Run the bot
-python main.py
-```
-
-## 🔧 Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DISCORD_BOT_TOKEN` | Discord bot token | ✅ |
-| `GROQ_API_KEY` | Groq API key | ✅ |
+### Getting Help
+1. Check `!config` for current settings
+2. Verify environment variables
+3. Check bot permissions in server
+4. Review SERVER_INTEGRATION_GUIDE.md
 
 ## 📝 License
 
@@ -154,24 +144,12 @@ This project is open source and available under the MIT License.
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+Feel free to contribute by:
+- Reporting bugs
+- Suggesting features
+- Improving documentation
+- Adding security enhancements
 
-## 🐛 Troubleshooting
+---
 
-### Bot not responding
-- Check if bot token is correct
-- Verify bot has proper permissions
-- Check if bot is online
-
-### AI not working
-- Verify Groq API key is valid
-- Check API rate limits
-- Ensure internet connectivity
-
-### Configuration not working
-- Make sure bot has slash command permissions
-- Check if `/config` command is loaded
-- Verify bot has embed permissions
+**Note**: This bot is designed to be human-like and avoid detection by moderation bots like Wick. Use responsibly and in accordance with Discord's Terms of Service.
