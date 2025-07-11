@@ -120,3 +120,10 @@ async def setup_bot():
 
 if __name__ == "__main__":
     asyncio.run(setup_bot())
+def replace_mentions_with_names(message_content, guild):
+    import re
+    def repl(match):
+        user_id = int(match.group(1))
+        member = guild.get_member(user_id)
+        return f"@{member.display_name}" if member else "@someone"
+    return re.sub(r"<@!?(\\d+)>", repl, message_content)
