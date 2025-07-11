@@ -2,6 +2,7 @@ import openai
 import os
 import logging
 from typing import Optional, Dict, List
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +37,30 @@ class APIClient:
             return None
 
     async def search_gif(self, query: str, limit: int = 1) -> Optional[str]:
-        # Placeholder for GIF search functionality
-        return None
+        """Search for a GIF using the GIPHY API and return the URL of the first result."""
+        giphy_api_key = os.getenv('GIPHY_API_KEY')
+        if not giphy_api_key:
+            logger.error("GIPHY_API_KEY environment variable not set!")
+            return None
+        try:
+            url = f"https://api.giphy.com/v1/gifs/search"
+            params = {
+                'api_key': giphy_api_key,
+                'q': query,
+                'limit': limit,
+                'rating': 'pg',
+                'lang': 'en'
+            }
+            response = requests.get(url, params=params)
+            response.raise_for_status()
+            data = response.json()
+            if data['data']:
+                return data['data'][0]['images']['original']['url']
+            else:
+                return None
+        except Exception as e:
+            logger.error(f"Error searching GIF: {e}")
+            return None
 
     async def generate_image(self, prompt: str) -> Optional[str]:
         # Groq does not support image generation
