@@ -12,13 +12,13 @@ class APIClient:
         openai.api_key = self.groq_api_key
         openai.base_url = "https://api.groq.com/openai/v1/"
 
-    async def chat_with_groq(self, messages: List[Dict], personality_prompt: str = "") -> Optional[str]:
+    def chat_with_groq(self, messages: List[Dict], personality_prompt: str = "") -> Optional[str]:
         try:
             chat_messages = []
             if personality_prompt:
                 chat_messages.append({"role": "system", "content": personality_prompt})
             chat_messages.extend(messages)
-            response = await openai.chat.completions.create(
+            response = openai.chat.completions.create(
                 model="llama3-70b-8192",
                 messages=chat_messages,
                 max_tokens=1024,

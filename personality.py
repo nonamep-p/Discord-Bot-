@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 class PersonalityManager:
     """Pure Groq-powered chatbot. No templates, no personas."""
-    async def generate_response(self, message: str, user_name: str, personality_mode: str, conversation_history: List[Dict], api_client=None) -> Optional[str]:
+    def generate_response(self, message: str, user_name: str, personality_mode: str, conversation_history: List[Dict], api_client=None) -> Optional[str]:
         try:
             context_messages = []
             for conv in conversation_history[-3:]:
@@ -22,7 +22,7 @@ class PersonalityManager:
                 "content": f"{user_name} says: {message}"
             })
             if api_client:
-                response = await api_client.chat_with_groq(context_messages)
+                response = api_client.chat_with_groq(context_messages)
                 if response:
                     return response
             return "Sorry, I'm having trouble connecting to my brain right now!"
