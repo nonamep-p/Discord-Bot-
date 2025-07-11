@@ -7,32 +7,51 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-class BotCommands(commands.Cog):
-    """All bot commands"""
-    
+class HelpView(discord.ui.View):
     def __init__(self, bot):
+        super().__init__(timeout=300)
         self.bot = bot
         
-    @commands.command(name='help')
-    async def help_command(self, ctx):
-        """Show all available commands"""
+    @discord.ui.button(label="Configuration", style=discord.ButtonStyle.primary, emoji="⚙️")
+    async def config_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         embed = discord.Embed(
-            title="🤖 Kaala Billota - Bot Commands & Features",
-            description="Here's everything I can do! I also respond to normal messages naturally 😊",
-            color=discord.Color.gold()
+            title="⚙️ Configuration Commands",
+            description="Manage bot settings and behavior",
+            color=discord.Color.blue()
         )
         
         embed.add_field(
-            name="⚙️ Configuration",
+            name="Commands",
             value="""
             `!config` - Interactive configuration panel
-            `!help` - Show this help message
+            `!help` - Show this help menu
             """,
             inline=False
         )
         
         embed.add_field(
-            name="💬 Chat Commands",
+            name="Features",
+            value="""
+            • Adjust chat frequency
+            • Change personality modes
+            • Toggle reactions and features
+            • Real-time settings updates
+            """,
+            inline=False
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Chat & AI", style=discord.ButtonStyle.success, emoji="💬")
+    async def chat_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = discord.Embed(
+            title="💬 Chat & AI Commands",
+            description="Interact with the AI and manage conversations",
+            color=discord.Color.green()
+        )
+        
+        embed.add_field(
+            name="Commands",
             value="""
             `!chat [message]` - Direct AI chat (10 coins)
             `!roleplay [character]` - Switch personality mode
@@ -41,22 +60,303 @@ class BotCommands(commands.Cog):
         )
         
         embed.add_field(
-            name="💰 Economy Commands",
+            name="Natural Features",
+            value="""
+            • Responds to name: **bilota**, **billota**, **kaala**
+            • Joins conversations randomly
+            • Remembers chat history
+            • Personality shifts based on conversation
+            """,
+            inline=False
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Economy", style=discord.ButtonStyle.secondary, emoji="💰")
+    async def economy_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = discord.Embed(
+            title="💰 Economy Commands",
+            description="Manage your coins and rewards",
+            color=discord.Color.gold()
+        )
+        
+        embed.add_field(
+            name="Commands",
             value="""
             `!balance` - Check your coins
-            `!daily` - Get daily coins (100 coins)
+            `!daily` - Get daily reward (100 coins)
             `!gift [user] [amount]` - Give coins to someone
             """,
             inline=False
         )
         
         embed.add_field(
-            name="ℹ️ Info Commands",
+            name="Features",
             value="""
-            `!limits` - Show remaining API limits
-            `!ping` - Check bot status
+            • Daily coin rewards
+            • Gift system for sharing
+            • Coin-based command costs
+            • Balance tracking
             """,
             inline=False
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Info & Status", style=discord.ButtonStyle.danger, emoji="ℹ️")
+    async def info_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = discord.Embed(
+            title="ℹ️ Info & Status Commands",
+            description="Check bot status and limits",
+            color=discord.Color.red()
+        )
+        
+        embed.add_field(
+            name="Commands",
+            value="""
+            `!ping` - Check bot latency
+            `!limits` - Show API usage limits
+            `!status` - Bot status and uptime
+            """,
+            inline=False
+        )
+        
+        embed.add_field(
+            name="Features",
+            value="""
+            • Real-time latency monitoring
+            • API usage tracking
+            • Rate limit information
+            • System status updates
+            """,
+            inline=False
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+
+class BalanceView(discord.ui.View):
+    def __init__(self, bot, user_data):
+        super().__init__(timeout=300)
+        self.bot = bot
+        self.user_data = user_data
+        
+    @discord.ui.button(label="Claim Daily", style=discord.ButtonStyle.success, emoji="🎁")
+    async def claim_daily(self, interaction: discord.Interaction, button: discord.ui.Button):
+        user_id = str(interaction.user.id)
+        
+        if self.bot.db.can_claim_daily(user_id):
+            new_balance = self.bot.db.claim_daily(user_id)
+            
+            embed = discord.Embed(
+                title="🎁 Daily Reward Claimed!",
+                description=f"You received **100 coins**!\nNew balance: **{new_balance}** coins",
+                color=discord.Color.green()
+            )
+            
+            await interaction.response.edit_message(embed=embed, view=self)
+            await interaction.message.add_reaction('🎉')
+        else:
+            embed = discord.Embed(
+                title="⏰ Daily Already Claimed",
+                description="You've already claimed your daily reward today!\nCome back tomorrow for more coins.",
+                color=discord.Color.orange()
+            )
+            
+            await interaction.response.edit_message(embed=embed, view=self)
+            
+    @discord.ui.button(label="Gift Coins", style=discord.ButtonStyle.primary, emoji="💝")
+    async def gift_coins(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = discord.Embed(
+            title="💝 Gift Coins",
+            description="Use `!gift @user amount` to gift coins to someone.\n\nExample: `!gift @friend 50`",
+            color=discord.Color.purple()
+        )
+        
+        embed.add_field(
+            name="Your Balance",
+            value=f"**{self.user_data['coins']}** coins available",
+            inline=True
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Back to Balance", style=discord.ButtonStyle.grey)
+    async def back_to_balance(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = discord.Embed(
+            title="💰 Your Balance",
+            description=f"**{self.user_data['coins']}** coins",
+            color=discord.Color.blue()
+        )
+        
+        embed.add_field(
+            name="📊 Stats",
+            value=f"Commands used: {self.user_data.get('total_commands', 0)}",
+            inline=True
+        )
+        
+        embed.set_footer(text="Use !daily to get 100 coins daily!")
+        
+        view = BalanceView(self.bot, self.user_data)
+        await interaction.response.edit_message(embed=embed, view=view)
+
+class ChatView(discord.ui.View):
+    def __init__(self, bot):
+        super().__init__(timeout=300)
+        self.bot = bot
+        
+    @discord.ui.button(label="Quick Chat", style=discord.ButtonStyle.primary, emoji="💬")
+    async def quick_chat(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = discord.Embed(
+            title="💬 Quick Chat",
+            description="Use `!chat [message]` to start a conversation.\n\nExample: `!chat Hello, how are you?`",
+            color=discord.Color.blue()
+        )
+        
+        embed.add_field(
+            name="Cost",
+            value="10 coins per chat",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="Features",
+            value="• AI-powered responses\n• Conversation memory\n• Personality modes",
+            inline=True
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Roleplay Mode", style=discord.ButtonStyle.success, emoji="🎭")
+    async def roleplay_mode(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = discord.Embed(
+            title="🎭 Roleplay Mode",
+            description="Use `!roleplay [character]` to switch personalities.\n\nExamples:\n• `!roleplay pirate`\n• `!roleplay wizard`\n• `!roleplay friendly cat`",
+            color=discord.Color.purple()
+        )
+        
+        embed.add_field(
+            name="Available Modes",
+            value="• Pirate, Wizard, Robot\n• Chef, Detective, Default\n• Or create your own!",
+            inline=False
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Natural Chat", style=discord.ButtonStyle.secondary, emoji="😊")
+    async def natural_chat(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = discord.Embed(
+            title="😊 Natural Conversation",
+            description="I respond naturally to messages! Try:\n\n• Call my name: **bilota**, **billota**, **kaala**\n• Mention me: @bot\n• DM me directly\n• I'll join conversations randomly",
+            color=discord.Color.green()
+        )
+        
+        embed.add_field(
+            name="Features",
+            value="• No commands needed\n• Personality shifts\n• Conversation memory\n• Natural reactions",
+            inline=False
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+
+class LimitsView(discord.ui.View):
+    def __init__(self, bot, usage_data):
+        super().__init__(timeout=300)
+        self.bot = bot
+        self.usage_data = usage_data
+        
+    @discord.ui.button(label="API Calls", style=discord.ButtonStyle.primary, emoji="🔄")
+    async def api_calls(self, interaction: discord.Interaction, button: discord.ui.Button):
+        api_calls_remaining = max(0, 50 - self.usage_data.get('hourly_calls', 0))
+        
+        embed = discord.Embed(
+            title="🔄 API Calls (Hourly)",
+            description=f"**{api_calls_remaining}/50** calls remaining",
+            color=discord.Color.blue()
+        )
+        
+        embed.add_field(
+            name="Usage",
+            value=f"Used: {self.usage_data.get('hourly_calls', 0)} calls this hour",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="Reset",
+            value="Resets every hour",
+            inline=True
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Images", style=discord.ButtonStyle.success, emoji="🎨")
+    async def images(self, interaction: discord.Interaction, button: discord.ui.Button):
+        images_remaining = max(0, 10 - self.usage_data.get('images_today', 0))
+        
+        embed = discord.Embed(
+            title="🎨 Images (Daily)",
+            description=f"**{images_remaining}/10** images remaining",
+            color=discord.Color.green()
+        )
+        
+        embed.add_field(
+            name="Usage",
+            value=f"Used: {self.usage_data.get('images_today', 0)} images today",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="Reset",
+            value="Resets daily at midnight",
+            inline=True
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Back to Limits", style=discord.ButtonStyle.grey)
+    async def back_to_limits(self, interaction: discord.Interaction, button: discord.ui.Button):
+        api_calls_remaining = max(0, 50 - self.usage_data.get('hourly_calls', 0))
+        images_remaining = max(0, 10 - self.usage_data.get('images_today', 0))
+        
+        embed = discord.Embed(
+            title="📊 Your Usage Limits",
+            description="Here are your remaining limits for today:",
+            color=discord.Color.blue()
+        )
+        
+        embed.add_field(
+            name="🔄 API Calls (Hourly)",
+            value=f"{api_calls_remaining}/50 remaining",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="🎨 Images (Daily)", 
+            value=f"{images_remaining}/10 remaining",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="📅 Reset Times",
+            value="• API calls: Every hour\n• Images: Daily at midnight",
+            inline=False
+        )
+        
+        view = LimitsView(self.bot, self.usage_data)
+        await interaction.response.edit_message(embed=embed, view=view)
+
+class BotCommands(commands.Cog):
+    """All bot commands with interactive buttons"""
+    
+    def __init__(self, bot):
+        self.bot = bot
+        
+    @commands.command(name='help')
+    async def help_command(self, ctx):
+        """Show all available commands with interactive buttons"""
+        embed = discord.Embed(
+            title="🤖 Kaala Billota - Interactive Help",
+            description="Choose a category to explore commands and features:",
+            color=discord.Color.gold()
         )
         
         embed.add_field(
@@ -72,8 +372,8 @@ class BotCommands(commands.Cog):
             inline=False
         )
         
-        embed.set_footer(text="💡 Tip: Try calling my name or just chat naturally!")
-        await ctx.send(embed=embed)
+        view = HelpView(self.bot)
+        await ctx.send(embed=embed, view=view)
         
     @commands.command(name='ping')
     async def ping(self, ctx):
@@ -86,12 +386,24 @@ class BotCommands(commands.Cog):
             color=discord.Color.green()
         )
         
+        embed.add_field(
+            name="Status",
+            value="✅ Online and ready",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="Uptime",
+            value="24/7 Active",
+            inline=True
+        )
+        
         await ctx.send(embed=embed)
         await ctx.message.add_reaction('🏓')
         
     @commands.command(name='balance')
     async def balance(self, ctx):
-        """Check user's coin balance"""
+        """Check user's coin balance with interactive buttons"""
         user_id = str(ctx.author.id)
         user_data = self.bot.db.get_user(user_id)
         
@@ -107,8 +419,10 @@ class BotCommands(commands.Cog):
             inline=True
         )
         
-        embed.set_footer(text="Use !daily to get 100 coins daily!")
-        await ctx.send(embed=embed)
+        embed.set_footer(text="Use the buttons below to manage your coins!")
+        
+        view = BalanceView(self.bot, user_data)
+        await ctx.send(embed=embed, view=view)
         
     @commands.command(name='daily')
     async def daily(self, ctx):
@@ -177,7 +491,26 @@ class BotCommands(commands.Cog):
     async def chat(self, ctx, *, message: str = None):
         """Direct AI chat"""
         if not message:
-            await ctx.send("❌ Please provide a message to chat about!")
+            embed = discord.Embed(
+                title="💬 Chat Command",
+                description="Use `!chat [message]` to start a conversation.\n\nExample: `!chat Hello, how are you?`",
+                color=discord.Color.blue()
+            )
+            
+            embed.add_field(
+                name="Cost",
+                value="10 coins per chat",
+                inline=True
+            )
+            
+            embed.add_field(
+                name="Features",
+                value="• AI-powered responses\n• Conversation memory\n• Personality modes",
+                inline=True
+            )
+            
+            view = ChatView(self.bot)
+            await ctx.send(embed=embed, view=view)
             return
             
         user_id = str(ctx.author.id)
@@ -224,10 +557,18 @@ class BotCommands(commands.Cog):
         if not character:
             embed = discord.Embed(
                 title="🎭 Roleplay Mode",
-                description="Usage: `!roleplay [character]`\n\nExamples:\n• `!roleplay pirate`\n• `!roleplay wise wizard`\n• `!roleplay friendly cat`\n• `!roleplay default` (reset)",
+                description="Use `!roleplay [character]` to switch personalities.\n\nExamples:\n• `!roleplay pirate`\n• `!roleplay wizard`\n• `!roleplay friendly cat`",
                 color=discord.Color.purple()
             )
-            await ctx.send(embed=embed)
+            
+            embed.add_field(
+                name="Available Modes",
+                value="• Pirate, Wizard, Robot\n• Chef, Detective, Default\n• Or create your own!",
+                inline=False
+            )
+            
+            view = ChatView(self.bot)
+            await ctx.send(embed=embed, view=view)
             return
             
         user_id = str(ctx.author.id)
@@ -246,7 +587,7 @@ class BotCommands(commands.Cog):
         
     @commands.command(name='limits')
     async def limits(self, ctx):
-        """Show remaining API limits"""
+        """Show remaining API limits with interactive buttons"""
         user_id = str(ctx.author.id)
         usage_data = self.bot.db.get_usage_data(user_id)
         
@@ -275,6 +616,44 @@ class BotCommands(commands.Cog):
             name="📅 Reset Times",
             value="• API calls: Every hour\n• Images: Daily at midnight",
             inline=False
+        )
+        
+        view = LimitsView(self.bot, usage_data)
+        await ctx.send(embed=embed, view=view)
+        
+    @commands.command(name='status')
+    async def status(self, ctx):
+        """Show detailed bot status"""
+        latency = round(self.bot.latency * 1000)
+        
+        embed = discord.Embed(
+            title="🤖 Bot Status",
+            description="Detailed system information",
+            color=discord.Color.blue()
+        )
+        
+        embed.add_field(
+            name="Connection",
+            value=f"Latency: {latency}ms\nStatus: Online",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="Servers",
+            value=f"Connected to {len(self.bot.guilds)} servers",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="Personality",
+            value=f"Mode: {self.bot.settings['personality_mode'].title()}\nChat Frequency: {self.bot.settings['chat_frequency'] * 100:.0f}%",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="Features",
+            value=f"Random Chat: {'✅' if self.bot.settings['random_chat_enabled'] else '❌'}\nReactions: {'✅' if self.bot.settings['reactions_enabled'] else '❌'}",
+            inline=True
         )
         
         await ctx.send(embed=embed)

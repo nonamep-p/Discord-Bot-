@@ -174,6 +174,26 @@ class PersonalityView(discord.ui.View):
         )
         await interaction.response.edit_message(embed=embed, view=self)
         
+    @discord.ui.button(label="Enthusiastic", style=discord.ButtonStyle.danger, emoji="🎉")
+    async def enthusiastic(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.bot.settings['personality_mode'] = 'enthusiastic'
+        embed = discord.Embed(
+            title="✅ Personality Updated",
+            description="I'm now in **Enthusiastic** mode - energetic and excited! 🎉",
+            color=discord.Color.green()
+        )
+        await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="Thoughtful", style=discord.ButtonStyle.primary, emoji="🤔")
+    async def thoughtful(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.bot.settings['personality_mode'] = 'thoughtful'
+        embed = discord.Embed(
+            title="✅ Personality Updated",
+            description="I'm now in **Thoughtful** mode - deep and reflective! ��",
+            color=discord.Color.green()
+        )
+        await interaction.response.edit_message(embed=embed, view=self)
+        
     @discord.ui.button(label="Back", style=discord.ButtonStyle.grey)
     async def back(self, interaction: discord.Interaction, button: discord.ui.Button):
         embed = discord.Embed(
@@ -199,7 +219,7 @@ class FeatureView(discord.ui.View):
             description=f"Reactions {status}",
             color=discord.Color.green()
         )
-        await interaction.response.edit_message(embed=embed, view=view=self)
+        await interaction.response.edit_message(embed=embed, view=self)
         
     @discord.ui.button(label="Back", style=discord.ButtonStyle.grey)
     async def back(self, interaction: discord.Interaction, button: discord.ui.Button):
